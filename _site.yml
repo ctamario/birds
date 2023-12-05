@@ -1,0 +1,8 @@
+name: "my-website"
+navbar:
+  title: "Bird Observation Visualizations"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html

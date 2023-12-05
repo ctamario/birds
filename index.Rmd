@@ -1,0 +1,292 @@
+---
+title: "Making gifs..."
+---
+
+```{r}
+
+library(pacman)
+p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magick, zoo, dplyr, gridExtra)
+
+```
+
+
+Ett arbetsflöde med endast svensk (https://www.artportalen.se/) och norsk (https://www.artsobservasjoner.no/) data. 
+
+Optimalt bör jag lära mig att använda ett API för att hämta data direkt från artdatabanken med kod, men just nu använder jag den manuella exporten från databasernas "Sök"-funktion.
+
+Exportera data till Excel, ta därefter bort de första två raderna som innehåller exportparametrarna och spara om till .csv. 
+
+```{r, import, echo = F} 
+
+#import-funktioner som konverterar dem till samma koordinatsystem.
+
+input_swedish_data <- function(in_data){
+  df <- st_as_sf(in_data, coords = c("Ost", "Nord"), crs=3021) 
+  df$date <- as.Date(df$Startdatum)
+  df2 <- st_transform(df, crs=4326)
+  df2 <- df2 %>% dplyr::select(date,inds=Antal)
+  df2 <- df2 %>% dplyr::filter(!is.na(as.numeric(inds)))
+  return(df2)
+}
+
+input_norwegian_data <- function(in_data){
+  df <- st_as_sf(in_data, coords = c("Østkoordinat", "Nordkoordinat"), crs=32633) 
+  df$date <- as.Date(df$Startdato)
+  df2 <- st_transform(df, crs=4326)
+  df2 <- df2 %>% dplyr::select(date,inds=Antall)
+  df2 <- df2 %>% dplyr::filter(!is.na(as.numeric(inds)))
+  return(df2)
+}
+
+```
+
+Ladda in dem och spara dem till ett objekt, och bearbeta sedan objekten med hjälp av "`input_*_data`"-funktionen.
+
+```{r}
+
+inornatus_NO <- read.csv(file="data/norge_tajga.csv", sep=";", dec=",")
+hodgsoni_NO <-read.csv(file="data/norge_sibpip.csv", sep=";", dec=",")
+proregulus_NO <- read.csv(file="data/norge_kfs.csv", sep=";", dec=",")
+
+inornatus_NO_out <- input_norwegian_data(inornatus_NO)
+hodgsoni_NO_out <-input_norwegian_data(hodgsoni_NO)
+proregulus_NO_out <-input_norwegian_data(proregulus_NO)
+
+inornatus_SV <- read.csv(file="data/sverige_tajga.csv", sep=";", dec=",")
+hodgsoni_SV <- read.csv(file="data/sverige_sibpip.csv", sep=";", dec=",")
+proregulus_SV <- read.csv(file="data/sverige_kfs.csv", sep=";", dec=",")
+
+inornatus_SV_out <- input_swedish_data(inornatus_SV)
+hodgsoni_SV_out <-input_swedish_data(hodgsoni_SV)
+proregulus_SV_out <-input_swedish_data(proregulus_SV)
+
+```
+
+
+```{r}
+start <- 240
+end <- 350
+
+prepare_data <- function(in_data1, in_data2) {
+  df <- rbind(in_data1, in_data2)
+  df$jdate <- as.numeric(format(df$date, "%j"))
+  df$year <- as.numeric(format(df$date, "%Y"))
+  df$inds <- as.numeric(df$inds)
+  df$inds_size <- round((log(df$inds) + 1), 1)
+  df <- df %>%
+    dplyr::mutate(lon = sf::st_coordinates(.)[, 1],
+                  lat = sf::st_coordinates(.)[, 2])
+  fade1 <- df
+  fade2 <- df
+  fade3 <- df
+  fade4 <- df
+  fade5 <- df
+  fade6 <- df
+  
+  fade1$jdate <- fade1$jdate + 0
+  fade1$alpha1 <- 0.5 / 10
+  
+  fade2$jdate <- fade1$jdate + 1
+  fade2$alpha1 <- 0.44 / 10
+  
+  fade3$jdate <- fade1$jdate + 2
+  fade3$alpha1 <- 0.34 / 10
+  
+  fade4$jdate <- fade1$jdate + 3
+  fade4$alpha1 <- 0.25 / 10
+  
+  fade5$jdate <- fade1$jdate + 4
+  fade5$alpha1 <- 0.16 / 10
+  
+  fade6$jdate <- fade1$jdate + 5
+  fade6$alpha1 <- 0.09 / 10
+  
+  df_tot <- rbind(fade1, fade2, fade3, fade4, fade5, fade6)
+  
+  df_center <-
+    df %>% dplyr::group_by(jdate) %>% dplyr::summarise(
+      lat_mean = mean(lat),
+      lon_mean = mean(lon),
+      lat_sd =
+        sd(lat, na.rm = T),
+      lon_sd = sd(lon, na.rm = T),
+      lat_10 =
+        quantile(lat, 0.1),
+      lon_10 = quantile(lon, 0.1),
+      lat_90 =
+        quantile(lat, 0.9),
+      lon_90 = quantile(lon, 0.9),
+      n = n()
+    )
+  
+  cent <- data.frame(jdate = start:end)
+  cent <- cent %>% dplyr::left_join(df_center, by = c("jdate"))
+  
+  cent$lat_mean2 <- cent$lat_mean
+  cent$lat_mean2[5:(nrow(cent))] <-
+    rollapply(
+      cent$lat_mean,
+      5,
+      FUN = function(x)
+        mean(x, na.rm = T),
+      align = "right"
+    )
+  cent$lon_mean2 <- cent$lon_mean
+  cent$lon_mean2[5:(nrow(cent))] <-
+    rollapply(
+      cent$lon_mean,
+      5,
+      FUN = function(x)
+        mean(x, na.rm = T),
+      align = "right"
+    )
+  cent$alpha2 <- cent$n / max(cent$n, na.rm = T)
+  cent$alpha2[is.na(cent$alpha2)] <- 0
+  
+  cent$lat_10_2 <- cent$lat_10
+  cent$lat_10_2[5:(nrow(cent))] <-
+    rollapply(
+      cent$lat_10,
+      5,
+      FUN = function(x)
+        mean(x, na.rm = T),
+      align = "right"
+    )
+  cent$lon_10_2 <- cent$lon_10
+  cent$lon_10_2[5:(nrow(cent))] <-
+    rollapply(
+      cent$lon_10,
+      5,
+      FUN = function(x)
+        mean(x, na.rm = T),
+      align = "right"
+    )
+  
+  cent$lat_90_2 <- cent$lat_90
+  cent$lat_90_2[5:(nrow(cent))] <-
+    rollapply(
+      cent$lat_90,
+      5,
+      FUN = function(x)
+        mean(x, na.rm = T),
+      align = "right"
+    )
+  cent$lon_90_2 <- cent$lon_90
+  cent$lon_90_2[5:(nrow(cent))] <-
+    rollapply(
+      cent$lon_90,
+      5,
+      FUN = function(x)
+        mean(x, na.rm = T),
+      align = "right"
+    )
+  
+  return(list(df_tot, cent))
+}
+
+```
+
+
+
+```{r}
+hodg <- as.data.frame(prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[1]])
+hodg2 <- prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[2]]
+inorn <- as.data.frame(prepare_data(inornatus_SV_out, inornatus_NO_out)[[1]])
+inorn2 <- prepare_data(inornatus_SV_out, inornatus_NO_out)[[2]]
+proreg <- as.data.frame(prepare_data(proregulus_SV_out, proregulus_NO_out)[[1]])
+proreg2 <- prepare_data(proregulus_SV_out, proregulus_NO_out)[[2]]
+
+hodg3 <- hodg2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup")
+inorn3 <- inorn2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup")
+proreg3 <- proreg2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+```
+
+
+```{r, eval = F}
+
+start <- 240
+end <- 350
+
+for(i in start:end){
+  hodg_loop <- hodg %>% dplyr::filter(jdate == i)
+  hodg2_loop <- hodg2 %>% dplyr::filter(jdate == i)
+  inorn_loop <- inorn %>% dplyr::filter(jdate == i)
+  inorn2_loop <- inorn2 %>% dplyr::filter(jdate == i)
+  proreg_loop <- proreg %>% dplyr::filter(jdate == i)
+  proreg2_loop <- proreg2 %>% dplyr::filter(jdate == i)
+  
+  p1 <- ggplot(data = world) +
+    geom_sf() +
+    coord_sf(xlim = c(2.201912, 32), ylim = c(54.352533, 71.5), expand = FALSE)+
+    geom_point(data=hodg_loop, 
+               aes(y=lat, x=lon, alpha=alpha1, size=inds_size), color="mediumblue")+
+    geom_point(data=hodg2_loop %>% dplyr::filter(jdate==i), 
+               aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color="red")+
+    geom_path(data=hodg3 %>% dplyr::filter(jdate > 230 & jdate <= i), 
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color="red", size=2)+
+    scale_alpha(limits = c(0.0, 1))+
+    scale_size(limits =c(1,4))+
+    ggtitle(paste0("Sibirisk piplärka: ", format(as.Date(as.character(i), "%j"),"%d %b")))+
+    theme_classic() + 
+    theme(legend.position = "none")
+  p2 <- ggplot(data = world) +
+    geom_sf() +
+    coord_sf(xlim = c(2.201912, 32), ylim = c(54.352533, 71.5), expand = FALSE)+
+    geom_point(data=inorn_loop, 
+               aes(y=lat, x=lon, alpha=alpha1, size=inds_size), color="mediumblue")+
+    geom_point(data=inorn2_loop, 
+               aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color="red")+
+    geom_path(data=inorn3 %>% dplyr::filter(jdate > 230 & jdate <= i), 
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color="red", size=2)+  
+    scale_alpha(limits = c(0.0, 1))+
+    scale_size(limits =c(1,4))+
+    ggtitle(paste0("Tajgasångare: ", format(as.Date(as.character(i), "%j"),"%d %b")))+
+    theme_classic() + 
+    theme(legend.position = "none")
+  p3 <- ggplot(data = world) +
+    geom_sf() +
+    coord_sf(xlim = c(2.201912, 32), ylim = c(54.352533, 71.5), expand = FALSE)+
+    geom_point(data=proreg_loop, 
+               aes(y=lat, x=lon, alpha=alpha1, size=inds_size), color="mediumblue")+
+    geom_point(data=proreg2_loop, 
+               aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color="red")+
+    geom_path(data=proreg3 %>% dplyr::filter(jdate > 230 & jdate <= i), 
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color="red", size=2)+  
+    scale_alpha(limits = c(0.0, 1))+
+    scale_size(limits =c(1,4))+
+    ggtitle(paste0("Kungsfågelsångare: ", format(as.Date(as.character(i), "%j"),"%d %b")))+
+    theme_classic() + 
+    theme(legend.position = "none")
+  p4 <- grid.arrange(p1, p2, p3, nrow=1)
+  ggsave(file=paste0(getwd(),"/out/first",i,".png"), plot=p4, width=10, height=6)
+}
+
+```
+
+
+Gör sedan en gif med serien bilder.
+
+
+```{r, eval = F}
+
+list.files(path=paste0(getwd(),"/out/"), pattern = '*.png', full.names = TRUE) %>% 
+  image_read() %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=12.500000, optimize=T) %>% # animates, can opt for number of loops
+  image_write(paste0(getwd(),"/gifs/all_three.gif"))
+
+```
+
+
+```{r}
+
+knitr::include_graphics("gifs/all_three.gif")
+
+```
+
+
+
+
