@@ -11,7 +11,7 @@
 
 
 
-<title>Making gifs…</title>
+<title>Animera fågelobservationer</title>
 
 <script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -260,56 +260,98 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Making gifs…</h1>
+<h1 class="title toc-ignore">Animera fågelobservationer</h1>
 
 </div>
 
 
-<pre class="r"><code>library(pacman)
-p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magick, zoo, dplyr, gridExtra)</code></pre>
-<p>Ett arbetsflöde med endast svensk (<a
+<div id="uppträdande-av-tre-sibbar-i-norge-och-sverige"
+class="section level2">
+<h2>Uppträdande av tre sibbar i Norge och Sverige</h2>
+<p>Data inkluderar alla observationer av sibirisk piplärka, tajgasångare
+och kungsfågelsångare från och med 1990 till och med 2022 i Norge och
+Sverige. Alla observationer sammanslagna till “ett år” som visar de
+tidsrumsliga uppträdandena av respektive art.</p>
+<p>En blå punkt dyker upp på första dagen av en observation och vilken
+gradvis tonas ned i intensitet över fem dagar. Storleken på punkten är
+logaritmiskt proportionell till hur många individer som observerades
+(skillnaden i storlek mellan 1 och 2 individer är större än 20 och 21
+individer).</p>
+<p>Den röda punkten är medianen av alla observationer under en viss dag;
+dock har ett “rullande medelvärde” har applicerats där den röda
+medianpunktens position beaktar de senaste fem dagarnas värde. Den röda
+linjen visar hur medianen har rört sig under säsongen. Färgstyrkan på
+linjen är proportionell till hur många observationer vid som har
+genererat linjen en viss tidpunkt.</p>
+<p>Något som bör beaktas i tolkningen av den röda linjen är att den
+nödvändigtvis inte reflekterar migrationsriktning. Om kallfronten från
+norr pressar ned fönstret under hösten kommer “median”-observationen att
+förflyttas söderut, även om det teoretiska inflödet är från
+(nord/rakt/syd)-ostlig sektor.</p>
+<p><img src="gifs/all_three.gif" /><!-- --></p>
+</div>
+<div id="bakomliggande-kod" class="section level2">
+<h2>Bakomliggande kod</h2>
+<p>Detta är ett arbetsflöde som endast gäller för svensk (<a
 href="https://www.artportalen.se/"
 class="uri">https://www.artportalen.se/</a>) och norsk (<a
 href="https://www.artsobservasjoner.no/"
 class="uri">https://www.artsobservasjoner.no/</a>) data.</p>
-<p>Optimalt bör jag lära mig att använda ett API för att hämta data
-direkt från artdatabanken med kod, men just nu använder jag den manuella
-exporten från databasernas “Sök”-funktion.</p>
-<p>Exportera data till Excel, ta därefter bort de första två raderna som
-innehåller exportparametrarna och spara om till .csv.</p>
+<pre class="r"><code>library(pacman)
+p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magick, zoo, dplyr, gridExtra)</code></pre>
+<p>Optimalt bör ett API användas för att hämta data direkt från
+portalerna med reproducerbar kod, men för tillfället har den manuella
+exporten från databasernas “Sök”-funktion använts: Exportera data till
+Excel, ta därefter bort de första två raderna som innehåller
+exportparametrarna och spara om till .csv.</p>
+<pre class="r"><code>#import-funktioner som konverterar dem till samma koordinatsystem.
+
+input_swedish_data &lt;- function(in_data){
+  df &lt;- st_as_sf(in_data, coords = c(&quot;Ost&quot;, &quot;Nord&quot;), crs=3021) 
+  df$date &lt;- as.Date(df$Startdatum)
+  df2 &lt;- st_transform(df, crs=4326)
+  df2 &lt;- df2 %&gt;% dplyr::select(date,inds=Antal)
+  df2 &lt;- df2 %&gt;% dplyr::filter(!is.na(as.numeric(inds)))
+  return(df2)
+}
+
+input_norwegian_data &lt;- function(in_data){
+  df &lt;- st_as_sf(in_data, coords = c(&quot;Østkoordinat&quot;, &quot;Nordkoordinat&quot;), crs=32633) 
+  df$date &lt;- as.Date(df$Startdato)
+  df2 &lt;- st_transform(df, crs=4326)
+  df2 &lt;- df2 %&gt;% dplyr::select(date,inds=Antall)
+  df2 &lt;- df2 %&gt;% dplyr::filter(!is.na(as.numeric(inds)))
+  return(df2)
+}</code></pre>
 <p>Ladda in dem och spara dem till ett objekt, och bearbeta sedan
 objekten med hjälp av “<code>input_*_data</code>”-funktionen.</p>
 <pre class="r"><code>inornatus_NO &lt;- read.csv(file=&quot;data/norge_tajga.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 hodgsoni_NO &lt;-read.csv(file=&quot;data/norge_sibpip.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 proregulus_NO &lt;- read.csv(file=&quot;data/norge_kfs.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 
-inornatus_NO_out &lt;- input_norwegian_data(inornatus_NO)</code></pre>
-<pre><code>## Warning: There was 1 warning in `stopifnot()`.
-## ℹ In argument: `!is.na(as.numeric(inds))`.
-## Caused by warning:
-## ! NAs introduced by coercion</code></pre>
-<pre class="r"><code>hodgsoni_NO_out &lt;-input_norwegian_data(hodgsoni_NO)
+inornatus_NO_out &lt;- input_norwegian_data(inornatus_NO)
+hodgsoni_NO_out &lt;-input_norwegian_data(hodgsoni_NO)
 proregulus_NO_out &lt;-input_norwegian_data(proregulus_NO)
 
 inornatus_SV &lt;- read.csv(file=&quot;data/sverige_tajga.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 hodgsoni_SV &lt;- read.csv(file=&quot;data/sverige_sibpip.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 proregulus_SV &lt;- read.csv(file=&quot;data/sverige_kfs.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 
-inornatus_SV_out &lt;- input_swedish_data(inornatus_SV)</code></pre>
-<pre><code>## Warning: There was 1 warning in `stopifnot()`.
-## ℹ In argument: `!is.na(as.numeric(inds))`.
-## Caused by warning:
-## ! NAs introduced by coercion</code></pre>
-<pre class="r"><code>hodgsoni_SV_out &lt;-input_swedish_data(hodgsoni_SV)
+inornatus_SV_out &lt;- input_swedish_data(inornatus_SV)
+hodgsoni_SV_out &lt;-input_swedish_data(hodgsoni_SV)
 proregulus_SV_out &lt;-input_swedish_data(proregulus_SV)</code></pre>
-<pre><code>## Warning: There was 1 warning in `stopifnot()`.
-## ℹ In argument: `!is.na(as.numeric(inds))`.
-## Caused by warning:
-## ! NAs introduced by coercion</code></pre>
+<p>Nedan är en funktion med tre delar som I) först lägger ihop det
+svenska och norska datasetet, sedan II) femdubblar datasetet med
+förskjutet datum för att plotta de gradvisa nedtoningarna av varje
+observation och III) beräknar medianpositionen av observationerna och
+applicerar ett rullande medelvärde.</p>
 <pre class="r"><code>start &lt;- 240
 end &lt;- 350
 
 prepare_data &lt;- function(in_data1, in_data2) {
+  
+  ### Part I: merge the two datasets and create some variables
+  
   df &lt;- rbind(in_data1, in_data2)
   df$jdate &lt;- as.numeric(format(df$date, &quot;%j&quot;))
   df$year &lt;- as.numeric(format(df$date, &quot;%Y&quot;))
@@ -318,113 +360,74 @@ prepare_data &lt;- function(in_data1, in_data2) {
   df &lt;- df %&gt;%
     dplyr::mutate(lon = sf::st_coordinates(.)[, 1],
                   lat = sf::st_coordinates(.)[, 2])
-  fade1 &lt;- df
-  fade2 &lt;- df
-  fade3 &lt;- df
-  fade4 &lt;- df
-  fade5 &lt;- df
-  fade6 &lt;- df
   
-  fade1$jdate &lt;- fade1$jdate + 0
-  fade1$alpha1 &lt;- 0.5 / 10
   
-  fade2$jdate &lt;- fade1$jdate + 1
-  fade2$alpha1 &lt;- 0.44 / 10
+  ### Part II: create data for the fading points
   
-  fade3$jdate &lt;- fade1$jdate + 2
-  fade3$alpha1 &lt;- 0.34 / 10
+  # Initialize an empty list to store data frames
+  fade_list &lt;- list()
   
-  fade4$jdate &lt;- fade1$jdate + 3
-  fade4$alpha1 &lt;- 0.25 / 10
+  # Define alpha values
+  alpha_values &lt;- c(0.5, 0.44, 0.34, 0.25, 0.16, 0.09)
   
-  fade5$jdate &lt;- fade1$jdate + 4
-  fade5$alpha1 &lt;- 0.16 / 10
+  # Loop to create fade data frames
+  for (i in 1:6) {
+    fade &lt;- df
+    fade$jdate &lt;- df$jdate + (i - 1)
+    fade$alpha1 &lt;- alpha_values[i] / 10
+    fade_list[[i]] &lt;- fade
+  }
   
-  fade6$jdate &lt;- fade1$jdate + 5
-  fade6$alpha1 &lt;- 0.09 / 10
+  # Combine the data frames into a single data frame
+  df_tot &lt;- do.call(rbind, fade_list)
   
-  df_tot &lt;- rbind(fade1, fade2, fade3, fade4, fade5, fade6)
   
-  df_center &lt;-
-    df %&gt;% dplyr::group_by(jdate) %&gt;% dplyr::summarise(
+  ### Part III: Calculate the centroid of all the observations for each day and apply a rolling mean
+  
+  df_center &lt;- df %&gt;%
+    group_by(jdate) %&gt;%
+    summarise(
       lat_mean = mean(lat),
       lon_mean = mean(lon),
-      lat_sd =
-        sd(lat, na.rm = T),
-      lon_sd = sd(lon, na.rm = T),
-      lat_10 =
-        quantile(lat, 0.1),
+      lat_sd = sd(lat, na.rm = TRUE),
+      lon_sd = sd(lon, na.rm = TRUE),
+      lat_10 = quantile(lat, 0.1),
       lon_10 = quantile(lon, 0.1),
-      lat_90 =
-        quantile(lat, 0.9),
+      lat_90 = quantile(lat, 0.9),
       lon_90 = quantile(lon, 0.9),
       n = n()
     )
   
-  cent &lt;- data.frame(jdate = start:end)
-  cent &lt;- cent %&gt;% dplyr::left_join(df_center, by = c(&quot;jdate&quot;))
+  # Create a sequence of dates from start to end
+  cent &lt;- data.frame(jdate = seq(start, end, by = 1))
   
-  cent$lat_mean2 &lt;- cent$lat_mean
-  cent$lat_mean2[5:(nrow(cent))] &lt;-
-    rollapply(
-      cent$lat_mean,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = &quot;right&quot;
-    )
-  cent$lon_mean2 &lt;- cent$lon_mean
-  cent$lon_mean2[5:(nrow(cent))] &lt;-
-    rollapply(
-      cent$lon_mean,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = &quot;right&quot;
-    )
+  # Left join df_center with cent
+  cent &lt;- left_join(cent, df_center, by = &quot;jdate&quot;)
+  
+  # Function to calculate rolling mean and update the column
+  rolling_mean &lt;- function(x, window_size) {
+    rollapply(x, window_size, FUN = function(y) mean(y, na.rm = TRUE), align = &quot;right&quot;)
+  }
+  
+  # Columns to process
+  columns_to_process &lt;-
+    c(&quot;lat_mean&quot;, &quot;lon_mean&quot;, &quot;lat_10&quot;, &quot;lon_10&quot;, &quot;lat_90&quot;, &quot;lon_90&quot;)
+  
+  # Apply rolling mean to specified columns
+  for (col in columns_to_process) {
+    cent[[paste0(col, &quot;2&quot;)]] &lt;- cent[[col]]
+    cent[[paste0(col, &quot;2&quot;)]][5:nrow(cent)] &lt;- rolling_mean(cent[[col]], 5)
+  }
+  
+  # Calculate alpha2
   cent$alpha2 &lt;- cent$n / max(cent$n, na.rm = T)
+  
+  # Replace NA values in alpha2 with 0
   cent$alpha2[is.na(cent$alpha2)] &lt;- 0
-  
-  cent$lat_10_2 &lt;- cent$lat_10
-  cent$lat_10_2[5:(nrow(cent))] &lt;-
-    rollapply(
-      cent$lat_10,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = &quot;right&quot;
-    )
-  cent$lon_10_2 &lt;- cent$lon_10
-  cent$lon_10_2[5:(nrow(cent))] &lt;-
-    rollapply(
-      cent$lon_10,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = &quot;right&quot;
-    )
-  
-  cent$lat_90_2 &lt;- cent$lat_90
-  cent$lat_90_2[5:(nrow(cent))] &lt;-
-    rollapply(
-      cent$lat_90,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = &quot;right&quot;
-    )
-  cent$lon_90_2 &lt;- cent$lon_90
-  cent$lon_90_2[5:(nrow(cent))] &lt;-
-    rollapply(
-      cent$lon_90,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = &quot;right&quot;
-    )
   
   return(list(df_tot, cent))
 }</code></pre>
+<p>Skapa dataseten med hjälp av funktionen ovan.</p>
 <pre class="r"><code>hodg &lt;- as.data.frame(prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[1]])
 hodg2 &lt;- prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[2]]
 inorn &lt;- as.data.frame(prepare_data(inornatus_SV_out, inornatus_NO_out)[[1]])
@@ -432,13 +435,14 @@ inorn2 &lt;- prepare_data(inornatus_SV_out, inornatus_NO_out)[[2]]
 proreg &lt;- as.data.frame(prepare_data(proregulus_SV_out, proregulus_NO_out)[[1]])
 proreg2 &lt;- prepare_data(proregulus_SV_out, proregulus_NO_out)[[2]]
 
-hodg3 &lt;- hodg2 %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;)
+hodg3 &lt;- hodg2 %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;) #Extrapolate the median 
 inorn3 &lt;- inorn2 %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;)
 proreg3 &lt;- proreg2 %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;)
 
-world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;)</code></pre>
-<pre class="r"><code>start &lt;- 240
-end &lt;- 350
+world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;) #Load the background map</code></pre>
+<p>Sedan görs en plott för dag med en loop.</p>
+<pre class="r"><code>start &lt;- 280
+end &lt;- 290
 
 for(i in start:end){
   hodg_loop &lt;- hodg %&gt;% dplyr::filter(jdate == i)
@@ -493,14 +497,13 @@ for(i in start:end){
   p4 &lt;- grid.arrange(p1, p2, p3, nrow=1)
   ggsave(file=paste0(getwd(),&quot;/out/first&quot;,i,&quot;.png&quot;), plot=p4, width=10, height=6)
 }</code></pre>
-<p>Gör sedan en gif med serien bilder.</p>
+<p>Varefter bilderna sedan slås ihop till en gif.</p>
 <pre class="r"><code>list.files(path=paste0(getwd(),&quot;/out/&quot;), pattern = &#39;*.png&#39;, full.names = TRUE) %&gt;% 
   image_read() %&gt;% # reads each path file
   image_join() %&gt;% # joins image
   image_animate(fps=12.500000, optimize=T) %&gt;% # animates, can opt for number of loops
   image_write(paste0(getwd(),&quot;/gifs/all_three.gif&quot;))</code></pre>
-<pre class="r"><code>knitr::include_graphics(&quot;gifs/all_three.gif&quot;)</code></pre>
-<p><img src="gifs/all_three.gif" /><!-- --></p>
+</div>
 
 
 
