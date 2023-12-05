@@ -2,6 +2,26 @@
 title: "Animera fågelobservationer"
 ---
 
+## Uppträdande av tre sibbar i Norge och Sverige
+
+Data inkluderar alla observationer av sibirisk piplärka, tajgasångare och kungsfågelsångare från och med 1990 till och med 2022 i Norge och Sverige. Alla observationer sammanslagna till "ett år" som visar de tidsrumsliga uppträdandena av respektive art. 
+
+En blå punkt dyker upp på första dagen av en observation och vilken gradvis tonas ned i intensitet över fem dagar. Storleken på punkten är logaritmiskt proportionell till hur många individer som observerades (skillnaden i storlek mellan 1 och 2 individer är större än 20 och 21 individer). 
+
+Den röda punkten är medianen av alla observationer under en viss dag; dock har ett "rullande medelvärde" har applicerats där den röda medianpunktens position beaktar de senaste fem dagarnas värde. Den röda linjen visar hur medianen har rört sig under säsongen. Färgstyrkan på linjen är proportionell till hur många observationer vid som har genererat linjen en viss tidpunkt.
+
+Något som bör beaktas i tolkningen av den röda linjen är att den nödvändigtvis inte reflekterar migrationsriktning. Om kallfronten från norr pressar ned fönstret under hösten kommer "median"-observationen att förflyttas söderut, även om det teoretiska inflödet är från (nord/rakt/syd)-ostlig sektor. 
+
+```{r echo = F}
+
+knitr::include_graphics("gifs/all_three.gif")
+
+```
+
+## Bakomliggande kod
+
+Detta är ett arbetsflöde som endast gäller för svensk (https://www.artportalen.se/) och norsk (https://www.artsobservasjoner.no/) data. 
+
 ```{r}
 
 library(pacman)
@@ -9,11 +29,7 @@ p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magi
 
 ```
 
-Ett arbetsflöde med endast svensk (https://www.artportalen.se/) och norsk (https://www.artsobservasjoner.no/) data. 
-
-Optimalt bör jag lära mig att använda ett API för att hämta data direkt från artdatabanken med kod, men just nu använder jag den manuella exporten från databasernas "Sök"-funktion.
-
-Exportera data till Excel. Ta därefter bort de första två raderna som innehåller exportparametrarna och spara om till .csv. 
+Optimalt bör ett API användas för att hämta data direkt från portalerna med reproducerbar kod, men för tillfället har den manuella exporten från databasernas "Sök"-funktion använts: Exportera data till Excel, ta därefter bort de första två raderna som innehåller exportparametrarna och spara om till .csv. 
 
 ```{r, import, warning = F} 
 
@@ -61,12 +77,16 @@ proregulus_SV_out <-input_swedish_data(proregulus_SV)
 
 ```
 
+Nedan är en funktion med tre delar som I) först lägger ihop det svenska och norska datasetet, sedan II) femdubblar datasetet med förskjutet datum för att plotta de gradvisa nedtoningarna av varje observation och III) beräknar medianpositionen av observationerna och applicerar ett rullande medelvärde.
 
 ```{r}
 start <- 240
 end <- 350
 
 prepare_data <- function(in_data1, in_data2) {
+  
+  ### Part I: merge the two datasets and create some variables
+  
   df <- rbind(in_data1, in_data2)
   df$jdate <- as.numeric(format(df$date, "%j"))
   df$year <- as.numeric(format(df$date, "%Y"))
@@ -75,111 +95,77 @@ prepare_data <- function(in_data1, in_data2) {
   df <- df %>%
     dplyr::mutate(lon = sf::st_coordinates(.)[, 1],
                   lat = sf::st_coordinates(.)[, 2])
-
-    # Initialize an empty list to store data frames
-    fade_list <- list()
-    
-    # Define alpha values
-    alpha_values <- c(0.5, 0.44, 0.34, 0.25, 0.16, 0.09)
-    
-    # Loop to create fade data frames
-    for (i in 1:6) {
-      fade <- df
-      fade$jdate <- df$jdate + (i - 1)
-      fade$alpha1 <- alpha_values[i] / 10
-      fade_list[[i]] <- fade
-    }
-    
-    # Combine the data frames into a single data frame
-    df_tot <- do.call(rbind, fade_list)
   
-    
-    ### Creat a centroid of all the observations for each day
-    
-  df_center <-
-    df %>% dplyr::group_by(jdate) %>% dplyr::summarise(
+  
+  ### Part II: create data for the fading points
+  
+  # Initialize an empty list to store data frames
+  fade_list <- list()
+  
+  # Define alpha values
+  alpha_values <- c(0.5, 0.44, 0.34, 0.25, 0.16, 0.09)
+  
+  # Loop to create fade data frames
+  for (i in 1:6) {
+    fade <- df
+    fade$jdate <- df$jdate + (i - 1)
+    fade$alpha1 <- alpha_values[i] / 10
+    fade_list[[i]] <- fade
+  }
+  
+  # Combine the data frames into a single data frame
+  df_tot <- do.call(rbind, fade_list)
+  
+  
+  ### Part III: Calculate the centroid of all the observations for each day and apply a rolling mean
+  
+  df_center <- df %>%
+    group_by(jdate) %>%
+    summarise(
       lat_mean = mean(lat),
       lon_mean = mean(lon),
-      lat_sd =
-        sd(lat, na.rm = T),
-      lon_sd = sd(lon, na.rm = T),
-      lat_10 =
-        quantile(lat, 0.1),
+      lat_sd = sd(lat, na.rm = TRUE),
+      lon_sd = sd(lon, na.rm = TRUE),
+      lat_10 = quantile(lat, 0.1),
       lon_10 = quantile(lon, 0.1),
-      lat_90 =
-        quantile(lat, 0.9),
+      lat_90 = quantile(lat, 0.9),
       lon_90 = quantile(lon, 0.9),
       n = n()
     )
   
-  cent <- data.frame(jdate = start:end)
-  cent <- cent %>% dplyr::left_join(df_center, by = c("jdate"))
+  # Create a sequence of dates from start to end
+  cent <- data.frame(jdate = seq(start, end, by = 1))
   
-  cent$lat_mean2 <- cent$lat_mean
-  cent$lat_mean2[5:(nrow(cent))] <-
-    rollapply(
-      cent$lat_mean,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = "right"
-    )
-  cent$lon_mean2 <- cent$lon_mean
-  cent$lon_mean2[5:(nrow(cent))] <-
-    rollapply(
-      cent$lon_mean,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = "right"
-    )
+  # Left join df_center with cent
+  cent <- left_join(cent, df_center, by = "jdate")
+  
+  # Function to calculate rolling mean and update the column
+  rolling_mean <- function(x, window_size) {
+    rollapply(x, window_size, FUN = function(y) mean(y, na.rm = TRUE), align = "right")
+  }
+  
+  # Columns to process
+  columns_to_process <-
+    c("lat_mean", "lon_mean", "lat_10", "lon_10", "lat_90", "lon_90")
+  
+  # Apply rolling mean to specified columns
+  for (col in columns_to_process) {
+    cent[[paste0(col, "2")]] <- cent[[col]]
+    cent[[paste0(col, "2")]][5:nrow(cent)] <- rolling_mean(cent[[col]], 5)
+  }
+  
+  # Calculate alpha2
   cent$alpha2 <- cent$n / max(cent$n, na.rm = T)
+  
+  # Replace NA values in alpha2 with 0
   cent$alpha2[is.na(cent$alpha2)] <- 0
-  
-  cent$lat_10_2 <- cent$lat_10
-  cent$lat_10_2[5:(nrow(cent))] <-
-    rollapply(
-      cent$lat_10,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = "right"
-    )
-  cent$lon_10_2 <- cent$lon_10
-  cent$lon_10_2[5:(nrow(cent))] <-
-    rollapply(
-      cent$lon_10,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = "right"
-    )
-  
-  cent$lat_90_2 <- cent$lat_90
-  cent$lat_90_2[5:(nrow(cent))] <-
-    rollapply(
-      cent$lat_90,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = "right"
-    )
-  cent$lon_90_2 <- cent$lon_90
-  cent$lon_90_2[5:(nrow(cent))] <-
-    rollapply(
-      cent$lon_90,
-      5,
-      FUN = function(x)
-        mean(x, na.rm = T),
-      align = "right"
-    )
   
   return(list(df_tot, cent))
 }
 
 ```
 
-
+Skapa dataseten med hjälp av funktionen ovan.
 
 ```{r}
 hodg <- as.data.frame(prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[1]])
@@ -189,19 +175,20 @@ inorn2 <- prepare_data(inornatus_SV_out, inornatus_NO_out)[[2]]
 proreg <- as.data.frame(prepare_data(proregulus_SV_out, proregulus_NO_out)[[1]])
 proreg2 <- prepare_data(proregulus_SV_out, proregulus_NO_out)[[2]]
 
-hodg3 <- hodg2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup")
+hodg3 <- hodg2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup") #Extrapolate the median 
 inorn3 <- inorn2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup")
 proreg3 <- proreg2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup")
 
-world <- ne_countries(scale = "medium", returnclass = "sf")
+world <- ne_countries(scale = "medium", returnclass = "sf") #Load the background map
 
 ```
 
+Sedan görs en plott för dag med en loop. 
 
 ```{r, eval = F}
 
-start <- 240
-end <- 350
+start <- 280
+end <- 290
 
 for(i in start:end){
   hodg_loop <- hodg %>% dplyr::filter(jdate == i)
@@ -260,7 +247,7 @@ for(i in start:end){
 ```
 
 
-Gör sedan en gif med serien bilder.
+Varefter bilderna sedan slås ihop till en gif.
 
 
 ```{r, eval = F}
@@ -274,11 +261,6 @@ list.files(path=paste0(getwd(),"/out/"), pattern = '*.png', full.names = TRUE) %
 ```
 
 
-```{r}
-
-knitr::include_graphics("gifs/all_three.gif")
-
-```
 
 
 
