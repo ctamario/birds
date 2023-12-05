@@ -1,5 +1,5 @@
 ---
-title: "Making gifs..."
+title: "Animera fågelobservationer"
 ---
 
 ```{r}
@@ -9,14 +9,13 @@ p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magi
 
 ```
 
-
 Ett arbetsflöde med endast svensk (https://www.artportalen.se/) och norsk (https://www.artsobservasjoner.no/) data. 
 
 Optimalt bör jag lära mig att använda ett API för att hämta data direkt från artdatabanken med kod, men just nu använder jag den manuella exporten från databasernas "Sök"-funktion.
 
-Exportera data till Excel, ta därefter bort de första två raderna som innehåller exportparametrarna och spara om till .csv. 
+Exportera data till Excel. Ta därefter bort de första två raderna som innehåller exportparametrarna och spara om till .csv. 
 
-```{r, import, echo = F} 
+```{r, import, warning = F} 
 
 #import-funktioner som konverterar dem till samma koordinatsystem.
 
@@ -42,7 +41,7 @@ input_norwegian_data <- function(in_data){
 
 Ladda in dem och spara dem till ett objekt, och bearbeta sedan objekten med hjälp av "`input_*_data`"-funktionen.
 
-```{r}
+```{r, warning = F}
 
 inornatus_NO <- read.csv(file="data/norge_tajga.csv", sep=";", dec=",")
 hodgsoni_NO <-read.csv(file="data/norge_sibpip.csv", sep=";", dec=",")
@@ -76,33 +75,27 @@ prepare_data <- function(in_data1, in_data2) {
   df <- df %>%
     dplyr::mutate(lon = sf::st_coordinates(.)[, 1],
                   lat = sf::st_coordinates(.)[, 2])
-  fade1 <- df
-  fade2 <- df
-  fade3 <- df
-  fade4 <- df
-  fade5 <- df
-  fade6 <- df
+
+    # Initialize an empty list to store data frames
+    fade_list <- list()
+    
+    # Define alpha values
+    alpha_values <- c(0.5, 0.44, 0.34, 0.25, 0.16, 0.09)
+    
+    # Loop to create fade data frames
+    for (i in 1:6) {
+      fade <- df
+      fade$jdate <- df$jdate + (i - 1)
+      fade$alpha1 <- alpha_values[i] / 10
+      fade_list[[i]] <- fade
+    }
+    
+    # Combine the data frames into a single data frame
+    df_tot <- do.call(rbind, fade_list)
   
-  fade1$jdate <- fade1$jdate + 0
-  fade1$alpha1 <- 0.5 / 10
-  
-  fade2$jdate <- fade1$jdate + 1
-  fade2$alpha1 <- 0.44 / 10
-  
-  fade3$jdate <- fade1$jdate + 2
-  fade3$alpha1 <- 0.34 / 10
-  
-  fade4$jdate <- fade1$jdate + 3
-  fade4$alpha1 <- 0.25 / 10
-  
-  fade5$jdate <- fade1$jdate + 4
-  fade5$alpha1 <- 0.16 / 10
-  
-  fade6$jdate <- fade1$jdate + 5
-  fade6$alpha1 <- 0.09 / 10
-  
-  df_tot <- rbind(fade1, fade2, fade3, fade4, fade5, fade6)
-  
+    
+    ### Creat a centroid of all the observations for each day
+    
   df_center <-
     df %>% dplyr::group_by(jdate) %>% dplyr::summarise(
       lat_mean = mean(lat),
