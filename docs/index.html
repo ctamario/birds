@@ -283,7 +283,7 @@ rört sig under säsongen. Färgstyrkan på linjen är proportionell till
 antalet fynd då linjen ritades.</p>
 <p>Något som bör beaktas i tolkningen av den röda linjen är att den
 nödvändigtvis inte reflekterar migrationsriktning. Om kallfronten från
-norr pressar ned fönstret under hösten kommer “median”-observationen att
+norr pressar ned fönstret under hösten kommer medianobservationen att
 förflyttas söderut, även om det teoretiska inflödet är från
 (nord/rakt/syd)-ostlig sektor.</p>
 <p><img src="gifs/all_three.gif" /><!-- --></p>
@@ -302,6 +302,41 @@ och spara om till .csv.</p>
 <p>Paket som används:</p>
 <pre class="r"><code>library(pacman)
 p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magick, zoo, dplyr, gridExtra)</code></pre>
+<pre><code>## Installing package into &#39;C:/Users/ÄGAREN/AppData/Local/R/win-library/4.3&#39;
+## (as &#39;lib&#39; is unspecified)</code></pre>
+<pre><code>## also installing the dependencies &#39;hms&#39;, &#39;prettyunits&#39;, &#39;tweenr&#39;, &#39;progress&#39;</code></pre>
+<pre><code>## Warning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3:
+##   cannot open URL &#39;http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3/PACKAGES&#39;</code></pre>
+<pre><code>## package &#39;hms&#39; successfully unpacked and MD5 sums checked
+## package &#39;prettyunits&#39; successfully unpacked and MD5 sums checked
+## package &#39;tweenr&#39; successfully unpacked and MD5 sums checked
+## package &#39;progress&#39; successfully unpacked and MD5 sums checked
+## package &#39;gganimate&#39; successfully unpacked and MD5 sums checked
+## 
+## The downloaded binary packages are in
+##  C:\Users\ÄGAREN\AppData\Local\Temp\RtmpAT5G53\downloaded_packages</code></pre>
+<pre><code>## 
+## gganimate installed</code></pre>
+<pre><code>## Installing package into &#39;C:/Users/ÄGAREN/AppData/Local/R/win-library/4.3&#39;
+## (as &#39;lib&#39; is unspecified)</code></pre>
+<pre><code>## Warning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3:
+##   cannot open URL &#39;http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3/PACKAGES&#39;</code></pre>
+<pre><code>## package &#39;magick&#39; successfully unpacked and MD5 sums checked
+## 
+## The downloaded binary packages are in
+##  C:\Users\ÄGAREN\AppData\Local\Temp\RtmpAT5G53\downloaded_packages</code></pre>
+<pre><code>## 
+## magick installed
+## Installing package into &#39;C:/Users/ÄGAREN/AppData/Local/R/win-library/4.3&#39;
+## (as &#39;lib&#39; is unspecified)</code></pre>
+<pre><code>## Warning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3:
+##   cannot open URL &#39;http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3/PACKAGES&#39;</code></pre>
+<pre><code>## package &#39;zoo&#39; successfully unpacked and MD5 sums checked
+## 
+## The downloaded binary packages are in
+##  C:\Users\ÄGAREN\AppData\Local\Temp\RtmpAT5G53\downloaded_packages</code></pre>
+<pre><code>## 
+## zoo installed</code></pre>
 <p>Import-funktioner som konverterar data från de olika portalerna till
 samma koordinatsystem.</p>
 <pre class="r"><code>input_swedish_data &lt;- function(in_data){
@@ -321,9 +356,10 @@ input_norwegian_data &lt;- function(in_data){
   df2 &lt;- df2 %&gt;% dplyr::filter(!is.na(as.numeric(inds)))
   return(df2)
 }</code></pre>
-<p>Ladda in dem och spara dem till ett objekt, och bearbeta sedan
-objekten med hjälp av “<code>input_*_data</code>”-funktionen.</p>
-<pre class="r"><code>inornatus_NO &lt;- read.csv(file=&quot;data/norge_tajga.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
+<p>Ladda in och bearbeta dataseten med hjälp av
+“<code>input_*_data</code>”-funktionen.</p>
+<pre class="r"><code># Norwegian data
+inornatus_NO &lt;- read.csv(file=&quot;data/norge_tajga.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 hodgsoni_NO &lt;-read.csv(file=&quot;data/norge_sibpip.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 proregulus_NO &lt;- read.csv(file=&quot;data/norge_kfs.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 
@@ -331,13 +367,14 @@ inornatus_NO_out &lt;- input_norwegian_data(inornatus_NO)
 hodgsoni_NO_out &lt;-input_norwegian_data(hodgsoni_NO)
 proregulus_NO_out &lt;-input_norwegian_data(proregulus_NO)
 
-inornatus_SV &lt;- read.csv(file=&quot;data/sverige_tajga.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
-hodgsoni_SV &lt;- read.csv(file=&quot;data/sverige_sibpip.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
-proregulus_SV &lt;- read.csv(file=&quot;data/sverige_kfs.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
+# Swedish data
+inornatus_SE &lt;- read.csv(file=&quot;data/sverige_tajga.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
+hodgsoni_SE &lt;- read.csv(file=&quot;data/sverige_sibpip.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
+proregulus_SE &lt;- read.csv(file=&quot;data/sverige_kfs.csv&quot;, sep=&quot;;&quot;, dec=&quot;,&quot;)
 
-inornatus_SV_out &lt;- input_swedish_data(inornatus_SV)
-hodgsoni_SV_out &lt;-input_swedish_data(hodgsoni_SV)
-proregulus_SV_out &lt;-input_swedish_data(proregulus_SV)</code></pre>
+inornatus_SE_out &lt;- input_swedish_data(inornatus_SE)
+hodgsoni_SE_out &lt;-input_swedish_data(hodgsoni_SE)
+proregulus_SE_out &lt;-input_swedish_data(proregulus_SE)</code></pre>
 <p>Nedan är en funktion med tre delar som I) först lägger ihop det
 svenska och norska datasetet, sedan II) femdubblar datasetet med
 förskjutet datum för att plotta de gradvisa nedtoningarna av varje
@@ -426,12 +463,12 @@ prepare_data &lt;- function(in_data1, in_data2) {
   return(list(df_tot, cent))
 }</code></pre>
 <p>Skapa dataseten med hjälp av funktionen ovan.</p>
-<pre class="r"><code>hodg &lt;- as.data.frame(prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[1]])
-hodg2 &lt;- prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[2]]
-inorn &lt;- as.data.frame(prepare_data(inornatus_SV_out, inornatus_NO_out)[[1]])
-inorn2 &lt;- prepare_data(inornatus_SV_out, inornatus_NO_out)[[2]]
-proreg &lt;- as.data.frame(prepare_data(proregulus_SV_out, proregulus_NO_out)[[1]])
-proreg2 &lt;- prepare_data(proregulus_SV_out, proregulus_NO_out)[[2]]
+<pre class="r"><code>hodg &lt;- as.data.frame(prepare_data(hodgsoni_SE_out, hodgsoni_NO_out)[[1]])
+hodg2 &lt;- prepare_data(hodgsoni_SE_out, hodgsoni_NO_out)[[2]]
+inorn &lt;- as.data.frame(prepare_data(inornatus_SE_out, inornatus_NO_out)[[1]])
+inorn2 &lt;- prepare_data(inornatus_SE_out, inornatus_NO_out)[[2]]
+proreg &lt;- as.data.frame(prepare_data(proregulus_SE_out, proregulus_NO_out)[[1]])
+proreg2 &lt;- prepare_data(proregulus_SE_out, proregulus_NO_out)[[2]]
 
 hodg3 &lt;- hodg2 %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;) #Extrapolate the median 
 inorn3 &lt;- inorn2 %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;)

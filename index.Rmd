@@ -8,7 +8,7 @@ På första dagen av en ny observation dyker en blå punkt upp vilken gradvis to
 
 Den röda punkten är medianen av alla observationer under en viss dag där ett "rullande medelvärde" över fem dagar har applicerats för att minska de ryckiga rörelserna. Den röda linjen visar hur medianen har rört sig under säsongen. Färgstyrkan på linjen är proportionell till antalet fynd då linjen ritades.
 
-Något som bör beaktas i tolkningen av den röda linjen är att den nödvändigtvis inte reflekterar migrationsriktning. Om kallfronten från norr pressar ned fönstret under hösten kommer "median"-observationen att förflyttas söderut, även om det teoretiska inflödet är från (nord/rakt/syd)-ostlig sektor. 
+Något som bör beaktas i tolkningen av den röda linjen är att den nödvändigtvis inte reflekterar migrationsriktning. Om kallfronten från norr pressar ned fönstret under hösten kommer medianobservationen att förflyttas söderut, även om det teoretiska inflödet är från (nord/rakt/syd)-ostlig sektor. 
 
 ```{r echo = F}
 
@@ -54,10 +54,10 @@ input_norwegian_data <- function(in_data){
 
 ```
 
-Ladda in dem och spara dem till ett objekt, och bearbeta sedan objekten med hjälp av "`input_*_data`"-funktionen.
+Ladda in och bearbeta dataseten med hjälp av "`input_*_data`"-funktionen.
 
 ```{r, warning = F}
-
+# Norwegian data
 inornatus_NO <- read.csv(file="data/norge_tajga.csv", sep=";", dec=",")
 hodgsoni_NO <-read.csv(file="data/norge_sibpip.csv", sep=";", dec=",")
 proregulus_NO <- read.csv(file="data/norge_kfs.csv", sep=";", dec=",")
@@ -66,13 +66,14 @@ inornatus_NO_out <- input_norwegian_data(inornatus_NO)
 hodgsoni_NO_out <-input_norwegian_data(hodgsoni_NO)
 proregulus_NO_out <-input_norwegian_data(proregulus_NO)
 
-inornatus_SV <- read.csv(file="data/sverige_tajga.csv", sep=";", dec=",")
-hodgsoni_SV <- read.csv(file="data/sverige_sibpip.csv", sep=";", dec=",")
-proregulus_SV <- read.csv(file="data/sverige_kfs.csv", sep=";", dec=",")
+# Swedish data
+inornatus_SE <- read.csv(file="data/sverige_tajga.csv", sep=";", dec=",")
+hodgsoni_SE <- read.csv(file="data/sverige_sibpip.csv", sep=";", dec=",")
+proregulus_SE <- read.csv(file="data/sverige_kfs.csv", sep=";", dec=",")
 
-inornatus_SV_out <- input_swedish_data(inornatus_SV)
-hodgsoni_SV_out <-input_swedish_data(hodgsoni_SV)
-proregulus_SV_out <-input_swedish_data(proregulus_SV)
+inornatus_SE_out <- input_swedish_data(inornatus_SE)
+hodgsoni_SE_out <-input_swedish_data(hodgsoni_SE)
+proregulus_SE_out <-input_swedish_data(proregulus_SE)
 
 ```
 
@@ -167,12 +168,12 @@ prepare_data <- function(in_data1, in_data2) {
 Skapa dataseten med hjälp av funktionen ovan.
 
 ```{r}
-hodg <- as.data.frame(prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[1]])
-hodg2 <- prepare_data(hodgsoni_SV_out, hodgsoni_NO_out)[[2]]
-inorn <- as.data.frame(prepare_data(inornatus_SV_out, inornatus_NO_out)[[1]])
-inorn2 <- prepare_data(inornatus_SV_out, inornatus_NO_out)[[2]]
-proreg <- as.data.frame(prepare_data(proregulus_SV_out, proregulus_NO_out)[[1]])
-proreg2 <- prepare_data(proregulus_SV_out, proregulus_NO_out)[[2]]
+hodg <- as.data.frame(prepare_data(hodgsoni_SE_out, hodgsoni_NO_out)[[1]])
+hodg2 <- prepare_data(hodgsoni_SE_out, hodgsoni_NO_out)[[2]]
+inorn <- as.data.frame(prepare_data(inornatus_SE_out, inornatus_NO_out)[[1]])
+inorn2 <- prepare_data(inornatus_SE_out, inornatus_NO_out)[[2]]
+proreg <- as.data.frame(prepare_data(proregulus_SE_out, proregulus_NO_out)[[1]])
+proreg2 <- prepare_data(proregulus_SE_out, proregulus_NO_out)[[2]]
 
 hodg3 <- hodg2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup") #Extrapolate the median 
 inorn3 <- inorn2 %>% fill(c(lat_mean2,lon_mean2), .direction = "downup")

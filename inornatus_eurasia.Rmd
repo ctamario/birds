@@ -1,0 +1,62 @@
+---
+title: "Tajgasångare i Eurasien"
+---
+
+```{r}
+
+library(pacman)
+
+p_load(tidyr, sf, rgbif, ggplot2, rnaturalearth, rnaturalearthdata)
+
+world <- ne_countries(scale = "medium", returnclass = "sf") #Load the background map
+```
+
+
+```{r}
+
+gbif_data <- occ_data(scientificName = "Phylloscopus inornatus", hasCoordinate = T,
+                      continent = c("Europe", "Asia"), limit = 500)
+
+
+gbif_data_total <- dplyr::bind_rows(gbif_data$Europe$data, gbif_data$Asia$data)
+
+df <- st_as_sf(gbif_data_total, coords = c("decimalLongitude", "decimalLatitude"), crs=4326)
+
+df <- df %>%
+  dplyr::mutate(lon = sf::st_coordinates(.)[,1],
+                lat = sf::st_coordinates(.)[,2])
+
+
+head(df)
+
+df$date <- as.Date(paste(sep="-",df$year,df$month,df$day))
+df$date <- as.Date(substr(df$eventDate,1,10), format="%Y-%m-%d")
+df$jdate <- as.numeric(format(df$date, "%j"))
+
+df <- df %>% dplyr::filter(jdate > 229)
+
+df1 <- df
+df1$alpha <- 0.03
+
+df2 <- df
+df2$jdate <- df1$jdate+1
+df2$alpha <- 0.015
+
+df <- rbind(df1, df2)
+
+ortho <- paste0('+proj=ortho +lat_0=50 +lon_0=80 +x_0=0 +k_0=1000 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs')
+
+df2 <- df2 %>% st_transform(crs = ortho)
+df2 <- df2 %>%
+  dplyr::mutate(lon = sf::st_coordinates(.)[,1],
+                lat = sf::st_coordinates(.)[,2])
+```
+
+
+
+
+
+
+
+
+
