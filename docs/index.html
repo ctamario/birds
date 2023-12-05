@@ -11,7 +11,7 @@
 
 
 
-<title>Animera fågelobservationer</title>
+<title>Uppträdandemönster av tre sibiriska tättingar i Norge och Sverige</title>
 
 <script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -238,12 +238,12 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Bird Observation Visualizations</a>
+      <a class="navbar-brand" href="index.html">Visualisering av fågelobsar</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">Home</a>
+  <a href="index.html">Tre sibbar i Norden</a>
 </li>
 <li>
   <a href="about.html">About</a>
@@ -260,53 +260,51 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Animera fågelobservationer</h1>
+<h1 class="title toc-ignore">Uppträdandemönster av tre sibiriska
+tättingar i Norge och Sverige</h1>
 
 </div>
 
 
-<div id="uppträdande-av-tre-sibbar-i-norge-och-sverige"
-class="section level2">
-<h2>Uppträdande av tre sibbar i Norge och Sverige</h2>
-<p>Data inkluderar alla observationer av sibirisk piplärka, tajgasångare
-och kungsfågelsångare från och med 1990 till och med 2022 i Norge och
-Sverige. Alla observationer sammanslagna till “ett år” som visar de
-tidsrumsliga uppträdandena av respektive art.</p>
-<p>En blå punkt dyker upp på första dagen av en observation och vilken
+<p>Data inkluderar alla observationer av a) sibirisk piplärka, b)
+tajgasångare och c) kungsfågelsångare från och med 1990 till och med
+2022 i Norge och Sverige. Alla observationer sammanslagna till “ett år”
+som visar de tidsrumsliga uppträdandena av respektive art över en
+säsong.</p>
+<p>På första dagen av en ny observation dyker en blå punkt upp vilken
 gradvis tonas ned i intensitet över fem dagar. Storleken på punkten är
 logaritmiskt proportionell till hur många individer som observerades
 (skillnaden i storlek mellan 1 och 2 individer är större än 20 och 21
 individer).</p>
-<p>Den röda punkten är medianen av alla observationer under en viss dag;
-dock har ett “rullande medelvärde” har applicerats där den röda
-medianpunktens position beaktar de senaste fem dagarnas värde. Den röda
-linjen visar hur medianen har rört sig under säsongen. Färgstyrkan på
-linjen är proportionell till hur många observationer vid som har
-genererat linjen en viss tidpunkt.</p>
+<p>Den röda punkten är medianen av alla observationer under en viss dag
+där ett “rullande medelvärde” över fem dagar har applicerats för att
+minska de ryckiga rörelserna. Den röda linjen visar hur medianen har
+rört sig under säsongen. Färgstyrkan på linjen är proportionell till
+antalet fynd då linjen ritades.</p>
 <p>Något som bör beaktas i tolkningen av den röda linjen är att den
 nödvändigtvis inte reflekterar migrationsriktning. Om kallfronten från
 norr pressar ned fönstret under hösten kommer “median”-observationen att
 förflyttas söderut, även om det teoretiska inflödet är från
 (nord/rakt/syd)-ostlig sektor.</p>
 <p><img src="gifs/all_three.gif" /><!-- --></p>
-</div>
 <div id="bakomliggande-kod" class="section level2">
 <h2>Bakomliggande kod</h2>
 <p>Detta är ett arbetsflöde som endast gäller för svensk (<a
 href="https://www.artportalen.se/"
 class="uri">https://www.artportalen.se/</a>) och norsk (<a
 href="https://www.artsobservasjoner.no/"
-class="uri">https://www.artsobservasjoner.no/</a>) data.</p>
+class="uri">https://www.artsobservasjoner.no/</a>) data. Optimalt bör
+ett API användas för att hämta data direkt från portalerna med
+reproducerbar kod, men för tillfället har den manuella exporten från
+databasernas “Sök”-funktion använts: Exportera data till Excel, ta
+därefter bort de första två raderna som innehåller exportparametrarna
+och spara om till .csv.</p>
+<p>Paket som används:</p>
 <pre class="r"><code>library(pacman)
 p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magick, zoo, dplyr, gridExtra)</code></pre>
-<p>Optimalt bör ett API användas för att hämta data direkt från
-portalerna med reproducerbar kod, men för tillfället har den manuella
-exporten från databasernas “Sök”-funktion använts: Exportera data till
-Excel, ta därefter bort de första två raderna som innehåller
-exportparametrarna och spara om till .csv.</p>
-<pre class="r"><code>#import-funktioner som konverterar dem till samma koordinatsystem.
-
-input_swedish_data &lt;- function(in_data){
+<p>Import-funktioner som konverterar data från de olika portalerna till
+samma koordinatsystem.</p>
+<pre class="r"><code>input_swedish_data &lt;- function(in_data){
   df &lt;- st_as_sf(in_data, coords = c(&quot;Ost&quot;, &quot;Nord&quot;), crs=3021) 
   df$date &lt;- as.Date(df$Startdatum)
   df2 &lt;- st_transform(df, crs=4326)
@@ -497,7 +495,7 @@ for(i in start:end){
   p4 &lt;- grid.arrange(p1, p2, p3, nrow=1)
   ggsave(file=paste0(getwd(),&quot;/out/first&quot;,i,&quot;.png&quot;), plot=p4, width=10, height=6)
 }</code></pre>
-<p>Varefter bilderna sedan slås ihop till en gif.</p>
+<p>…varefter bilderna sedan slås ihop till en gif.</p>
 <pre class="r"><code>list.files(path=paste0(getwd(),&quot;/out/&quot;), pattern = &#39;*.png&#39;, full.names = TRUE) %&gt;% 
   image_read() %&gt;% # reads each path file
   image_join() %&gt;% # joins image

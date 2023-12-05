@@ -1,14 +1,12 @@
 ---
-title: "Animera fågelobservationer"
+title: "Uppträdandemönster av tre sibiriska tättingar i Norge och Sverige"
 ---
 
-## Uppträdande av tre sibbar i Norge och Sverige
+Data inkluderar alla observationer av a) sibirisk piplärka, b) tajgasångare och c) kungsfågelsångare från och med 1990 till och med 2022 i Norge och Sverige. Alla observationer sammanslagna till "ett år" som visar de tidsrumsliga uppträdandena av respektive art över en säsong. 
 
-Data inkluderar alla observationer av sibirisk piplärka, tajgasångare och kungsfågelsångare från och med 1990 till och med 2022 i Norge och Sverige. Alla observationer sammanslagna till "ett år" som visar de tidsrumsliga uppträdandena av respektive art. 
+På första dagen av en ny observation dyker en blå punkt upp vilken gradvis tonas ned i intensitet över fem dagar. Storleken på punkten är logaritmiskt proportionell till hur många individer som observerades (skillnaden i storlek mellan 1 och 2 individer är större än 20 och 21 individer). 
 
-En blå punkt dyker upp på första dagen av en observation och vilken gradvis tonas ned i intensitet över fem dagar. Storleken på punkten är logaritmiskt proportionell till hur många individer som observerades (skillnaden i storlek mellan 1 och 2 individer är större än 20 och 21 individer). 
-
-Den röda punkten är medianen av alla observationer under en viss dag; dock har ett "rullande medelvärde" har applicerats där den röda medianpunktens position beaktar de senaste fem dagarnas värde. Den röda linjen visar hur medianen har rört sig under säsongen. Färgstyrkan på linjen är proportionell till hur många observationer vid som har genererat linjen en viss tidpunkt.
+Den röda punkten är medianen av alla observationer under en viss dag där ett "rullande medelvärde" över fem dagar har applicerats för att minska de ryckiga rörelserna. Den röda linjen visar hur medianen har rört sig under säsongen. Färgstyrkan på linjen är proportionell till antalet fynd då linjen ritades.
 
 Något som bör beaktas i tolkningen av den röda linjen är att den nödvändigtvis inte reflekterar migrationsriktning. Om kallfronten från norr pressar ned fönstret under hösten kommer "median"-observationen att förflyttas söderut, även om det teoretiska inflödet är från (nord/rakt/syd)-ostlig sektor. 
 
@@ -20,7 +18,9 @@ knitr::include_graphics("gifs/all_three.gif")
 
 ## Bakomliggande kod
 
-Detta är ett arbetsflöde som endast gäller för svensk (https://www.artportalen.se/) och norsk (https://www.artsobservasjoner.no/) data. 
+Detta är ett arbetsflöde som endast gäller för svensk (https://www.artportalen.se/) och norsk (https://www.artsobservasjoner.no/) data. Optimalt bör ett API användas för att hämta data direkt från portalerna med reproducerbar kod, men för tillfället har den manuella exporten från databasernas "Sök"-funktion använts: Exportera data till Excel, ta därefter bort de första två raderna som innehåller exportparametrarna och spara om till .csv. 
+
+Paket som används: 
 
 ```{r}
 
@@ -29,11 +29,9 @@ p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magi
 
 ```
 
-Optimalt bör ett API användas för att hämta data direkt från portalerna med reproducerbar kod, men för tillfället har den manuella exporten från databasernas "Sök"-funktion använts: Exportera data till Excel, ta därefter bort de första två raderna som innehåller exportparametrarna och spara om till .csv. 
 
+Import-funktioner som konverterar data från de olika portalerna till samma koordinatsystem.
 ```{r, import, warning = F} 
-
-#import-funktioner som konverterar dem till samma koordinatsystem.
 
 input_swedish_data <- function(in_data){
   df <- st_as_sf(in_data, coords = c("Ost", "Nord"), crs=3021) 
@@ -52,6 +50,7 @@ input_norwegian_data <- function(in_data){
   df2 <- df2 %>% dplyr::filter(!is.na(as.numeric(inds)))
   return(df2)
 }
+
 
 ```
 
@@ -247,7 +246,7 @@ for(i in start:end){
 ```
 
 
-Varefter bilderna sedan slås ihop till en gif.
+...varefter bilderna sedan slås ihop till en gif.
 
 
 ```{r, eval = F}
