@@ -5,5 +5,7 @@ navbar:
   left:
     - text: "Tre sibbar i Norden"
       href: index.html
+    - text: "Tajgasångare i Eurasien"
+      href: inornatus_eurasia.html
     - text: "About"
       href: about.html

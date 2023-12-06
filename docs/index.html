@@ -246,6 +246,9 @@ $(document).ready(function () {
   <a href="index.html">Tre sibbar i Norden</a>
 </li>
 <li>
+  <a href="inornatus_eurasia.html">Tajgasångare i Eurasien</a>
+</li>
+<li>
   <a href="about.html">About</a>
 </li>
       </ul>
@@ -302,41 +305,6 @@ och spara om till .csv.</p>
 <p>Paket som används:</p>
 <pre class="r"><code>library(pacman)
 p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magick, zoo, dplyr, gridExtra)</code></pre>
-<pre><code>## Installing package into &#39;C:/Users/ÄGAREN/AppData/Local/R/win-library/4.3&#39;
-## (as &#39;lib&#39; is unspecified)</code></pre>
-<pre><code>## also installing the dependencies &#39;hms&#39;, &#39;prettyunits&#39;, &#39;tweenr&#39;, &#39;progress&#39;</code></pre>
-<pre><code>## Warning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3:
-##   cannot open URL &#39;http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3/PACKAGES&#39;</code></pre>
-<pre><code>## package &#39;hms&#39; successfully unpacked and MD5 sums checked
-## package &#39;prettyunits&#39; successfully unpacked and MD5 sums checked
-## package &#39;tweenr&#39; successfully unpacked and MD5 sums checked
-## package &#39;progress&#39; successfully unpacked and MD5 sums checked
-## package &#39;gganimate&#39; successfully unpacked and MD5 sums checked
-## 
-## The downloaded binary packages are in
-##  C:\Users\ÄGAREN\AppData\Local\Temp\RtmpAT5G53\downloaded_packages</code></pre>
-<pre><code>## 
-## gganimate installed</code></pre>
-<pre><code>## Installing package into &#39;C:/Users/ÄGAREN/AppData/Local/R/win-library/4.3&#39;
-## (as &#39;lib&#39; is unspecified)</code></pre>
-<pre><code>## Warning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3:
-##   cannot open URL &#39;http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3/PACKAGES&#39;</code></pre>
-<pre><code>## package &#39;magick&#39; successfully unpacked and MD5 sums checked
-## 
-## The downloaded binary packages are in
-##  C:\Users\ÄGAREN\AppData\Local\Temp\RtmpAT5G53\downloaded_packages</code></pre>
-<pre><code>## 
-## magick installed
-## Installing package into &#39;C:/Users/ÄGAREN/AppData/Local/R/win-library/4.3&#39;
-## (as &#39;lib&#39; is unspecified)</code></pre>
-<pre><code>## Warning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3:
-##   cannot open URL &#39;http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.3/PACKAGES&#39;</code></pre>
-<pre><code>## package &#39;zoo&#39; successfully unpacked and MD5 sums checked
-## 
-## The downloaded binary packages are in
-##  C:\Users\ÄGAREN\AppData\Local\Temp\RtmpAT5G53\downloaded_packages</code></pre>
-<pre><code>## 
-## zoo installed</code></pre>
 <p>Import-funktioner som konverterar data från de olika portalerna till
 samma koordinatsystem.</p>
 <pre class="r"><code>input_swedish_data &lt;- function(in_data){

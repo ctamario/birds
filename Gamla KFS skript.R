@@ -178,16 +178,14 @@ inorn_lines_east$lat_sd2[5:(nrow(inorn_lines_east))] <- rollapply(inorn_lines_ea
 inorn_lines_east$lon_sd2 <- inorn_lines_east$lon_sd
 inorn_lines_east$lon_sd2[5:(nrow(inorn_lines_east))] <- rollapply(inorn_lines_east$lon_sd, 5, FUN=function(x) mean(x, na.rm=T), align = "right")
 
-
-
 inorn_lines_east$n[is.na(inorn_lines_east$n)] <- 0 
 inorn_lines_west$n[is.na(inorn_lines_west$n)] <- 0 
 
-for(i in 230:330){
+for(i in 220:240){
   plot1 <- ggplot(data = world) +
     geom_sf() +
     coord_sf(crs=ortho, xlim=c(-5500000, 5500000), ylim=c(-4500000, 3500000))+
-    geom_point(data=inorn_geo10 %>%filter(jdate == i), aes(y=lat, x=lon, alpha=alpha, size=size), alpha=0.05, color="mediumblue")+
+    geom_point(data=df210 %>%filter(jdate == i), aes(y=lat, x=lon, alpha=alpha1), alpha=0.05, color="mediumblue")+
     geom_path(data=inorn_lines_west %>% dplyr::filter(jdate > 230 & jdate < i), aes(x=lon_mean2, y=lat_mean2, alpha=n), color="red", size=2)+
     geom_path(data=inorn_lines_east %>% dplyr::filter(jdate > 230 & jdate < i), aes(x=lon_mean2, y=lat_mean2, alpha=n), color="green", size=2)+
     ggtitle(paste0("Tajgasångare: ", format(as.Date(as.character(i), "%j"),"%d %b")))+

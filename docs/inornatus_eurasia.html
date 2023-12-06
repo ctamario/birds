@@ -246,6 +246,9 @@ $(document).ready(function () {
   <a href="index.html">Tre sibbar i Norden</a>
 </li>
 <li>
+  <a href="inornatus_eurasia.html">Tajgasångare i Eurasien</a>
+</li>
+<li>
   <a href="about.html">About</a>
 </li>
       </ul>
@@ -265,67 +268,192 @@ $(document).ready(function () {
 </div>
 
 
+<p>En visualisering av alla fynd av tajgasångare i Eurasien. De blå
+punkterna dyker upp dag ett och de tonas bort över 4 dagar. Jag har
+delat upp förekomsterna i två ytor - Europa (röd) och Asien (grön) - och
+respektive spår följer medianen för fynden i respektive yta. Eftersom
+hela året visualiseras har medianspåret en 50-dagars svans som följer
+med när gif:en börjar om.</p>
+<p><img src="gifs/inornatus_eurasia4.gif" /><!-- --></p>
 <pre class="r"><code>library(pacman)
 
-p_load(tidyr, sf, rgbif, ggplot2, rnaturalearth, rnaturalearthdata)
+p_load(tidyr, sf, rgbif, ggplot2, rnaturalearth, rnaturalearthdata, stringr, zoo, magick, giscoR, mapview)
 
-world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;) #Load the background map</code></pre>
+#world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;) #Load the background map
+
+# Broken polygons with the above method. See new method below, works fine. 
+#https://gis.stackexchange.com/questions/469267/ggplot-and-sf-package-broken-polygons-after-projection
+
+world.sf &lt;- gisco_get_countries(region = c(&quot;Asia&quot;, &quot;Europe&quot;, &quot;Africa&quot;))
+
+world  &lt;- st_cast(world.sf, &#39;MULTILINESTRING&#39;) %&gt;%
+  st_cast(&#39;LINESTRING&#39;, do_split=T) %&gt;%
+  dplyr::mutate(npts = npts(geometry, by_feature = T)) %&gt;%
+  st_cast(&#39;POLYGON&#39;)</code></pre>
+<pre><code>## Warning in st_cast.sf(., &quot;LINESTRING&quot;, do_split = T): repeating attributes for
+## all sub-geometries for which they may not be constant</code></pre>
+<p>Run the code below to get data from GBIF. It may take a while, so I
+have downloaded the file…</p>
 <pre class="r"><code>gbif_data &lt;- occ_data(scientificName = &quot;Phylloscopus inornatus&quot;, hasCoordinate = T,
-                      continent = c(&quot;Europe&quot;, &quot;Asia&quot;), limit = 500)
+                      continent = c(&quot;Europe&quot;, &quot;Asia&quot;), limit = 50000)
 
+gbif_data_total &lt;- dplyr::bind_rows(gbif_data$Europe$data, gbif_data$Asia$data)</code></pre>
+<p>Run the code below to load the downloaded data from disk.</p>
+<pre class="r"><code>gbif_data_total &lt;- read.delim(&quot;C:/projekt/data/0059073-231002084531237.csv&quot;)
+table(!is.na(gbif_data_total$decimalLongitude))
+table(!is.na(gbif_data_total$decimalLatitude)) # check for occurrences without coordinates
 
-gbif_data_total &lt;- dplyr::bind_rows(gbif_data$Europe$data, gbif_data$Asia$data)
+gbif_data_total &lt;- gbif_data_total[!is.na(gbif_data_total$decimalLongitude),]
+gbif_data_total &lt;- gbif_data_total[!is.na(gbif_data_total$decimalLatitude),] # remove occurrences without coordinates
 
-df &lt;- st_as_sf(gbif_data_total, coords = c(&quot;decimalLongitude&quot;, &quot;decimalLatitude&quot;), crs=4326)
+gbif_data_total &lt;- gbif_data_total %&gt;% dplyr::filter(as.numeric(year) &gt;= 1990)</code></pre>
+<pre class="r"><code>df &lt;- st_as_sf(gbif_data_total, coords = c(&quot;decimalLongitude&quot;, &quot;decimalLatitude&quot;), crs=4326) # convert to sf object</code></pre>
+<pre class="r"><code># A neat function to &quot;wrap around&quot; the year in order for the tail to carry over day 0. 
 
+shifter &lt;- function(x, n = 1) {
+  if (n == 0) x else c(tail(x, -n), head(x, n))
+}
+
+year_days &lt;- 1:365
+
+shifter(year_days, 365)[1]</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code># pmin is a function that compares two vectors and returns the minimum value for each position.
+pmin(c(5,4,3,0.1,1),c(5,3,2,2,1))</code></pre>
+<pre><code>## [1] 5.0 3.0 2.0 0.1 1.0</code></pre>
+<pre class="r"><code>delay_day &lt;- function(in_day, delay){
+  year_days &lt;- 1:365
+  shifter &lt;- function(x, n = 1) {
+  if (n == 0) x else c(tail(x, -n), head(x, n))
+  }
+  out &lt;- shifter(year_days, in_day)[delay]
+  return(out)
+}</code></pre>
+<pre class="r"><code>#head(df)
+
+# create and convert date
+df$date &lt;- as.Date(paste(sep=&quot;-&quot;,df$year,df$month,df$day))
+df$date &lt;- as.Date(substr(df$eventDate,1,10), format=&quot;%Y-%m-%d&quot;)
+df$jdate &lt;- as.numeric(format(df$date, &quot;%j&quot;))
+
+## Have a look, Calle: https://gist.github.com/rafapereirabr/26965dd851debad32ad2e659024ba451
+
+# transform to funny projection
+ortho &lt;- paste0(&#39;+proj=ortho +lat_0=50 +lon_0=80 +x_0=0 +k_0=1000 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs&#39;)
+
+# create coordinates
+df &lt;- df %&gt;% st_transform(crs = ortho)
 df &lt;- df %&gt;%
   dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                 lat = sf::st_coordinates(.)[,2])
 
+# 
+df2 &lt;- df %&gt;% dplyr::select(lon, lat, date, jdate, individualCount)
 
-head(df)</code></pre>
-<pre><code>## Simple feature collection with 6 features and 124 fields
-## Geometry type: POINT
-## Dimension:     XY
-## Bounding box:  xmin: -2.872365 ymin: 52.2618 xmax: -0.696744 ymax: 53.6149
-## Geodetic CRS:  WGS 84
-## # A tibble: 6 × 125
-##   key        scientificName   issues datasetKey publishingOrgKey installationKey
-##   &lt;chr&gt;      &lt;chr&gt;            &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;            &lt;chr&gt;          
-## 1 4089812825 Phylloscopus in… cdc,c… 6ff8b3b0-… 0c6d40e3-5d96-4… b07988d2-1b3d-…
-## 2 4090409359 Phylloscopus in… cdc,c… 6ff8b3b0-… 0c6d40e3-5d96-4… b07988d2-1b3d-…
-## 3 4022356345 Phylloscopus in… cdc,c… 50c9509d-… 28eb1a3f-1c15-4… 997448a8-f762-…
-## 4 4022315508 Phylloscopus in… cdc,c… 50c9509d-… 28eb1a3f-1c15-4… 997448a8-f762-…
-## 5 4022287306 Phylloscopus in… cdc,c… 50c9509d-… 28eb1a3f-1c15-4… 997448a8-f762-…
-## 6 4022033027 Phylloscopus in… cdc,c… 50c9509d-… 28eb1a3f-1c15-4… 997448a8-f762-…
-## # ℹ 119 more variables: hostingOrganizationKey &lt;chr&gt;, publishingCountry &lt;chr&gt;,
-## #   protocol &lt;chr&gt;, lastCrawled &lt;chr&gt;, lastParsed &lt;chr&gt;, crawlId &lt;int&gt;,
-## #   basisOfRecord &lt;chr&gt;, occurrenceStatus &lt;chr&gt;, taxonKey &lt;int&gt;,
-## #   kingdomKey &lt;int&gt;, phylumKey &lt;int&gt;, classKey &lt;int&gt;, orderKey &lt;int&gt;,
-## #   familyKey &lt;int&gt;, genusKey &lt;int&gt;, speciesKey &lt;int&gt;, acceptedTaxonKey &lt;int&gt;,
-## #   acceptedScientificName &lt;chr&gt;, kingdom &lt;chr&gt;, phylum &lt;chr&gt;, order &lt;chr&gt;,
-## #   family &lt;chr&gt;, genus &lt;chr&gt;, species &lt;chr&gt;, genericName &lt;chr&gt;, …</code></pre>
-<pre class="r"><code>df$date &lt;- as.Date(paste(sep=&quot;-&quot;,df$year,df$month,df$day))
-df$date &lt;- as.Date(substr(df$eventDate,1,10), format=&quot;%Y-%m-%d&quot;)
-df$jdate &lt;- as.numeric(format(df$date, &quot;%j&quot;))
+# occurrences without a specified number of individuals get an abundance of 1. 
+table(df2$individualCount, useNA = &quot;ifany&quot;)
+df2$individualCount[is.na(df2$individualCount)] &lt;- 1
+table(df2$individualCount, useNA = &quot;ifany&quot;)
 
-df &lt;- df %&gt;% dplyr::filter(jdate &gt; 229)
 
-df1 &lt;- df
-df1$alpha &lt;- 0.03
+df2$alpha1 &lt;- 0.10
 
-df2 &lt;- df
-df2$jdate &lt;- df1$jdate+1
-df2$alpha &lt;- 0.015
+df3 &lt;- df2
+for (i in 2:5) {
+  temp_df &lt;- df2
+  temp_df$alpha1 &lt;- 0.10 / i
+  #temp_df$jdate &lt;- shifter(year_days, temp_df$jdate)[i-1]
+  temp_df$jdate &lt;- sapply(temp_df$jdate, delay_day, delay = i-1)
+  df3 &lt;- rbind(df3, temp_df)
+}
 
-df &lt;- rbind(df1, df2)
+df3$size &lt;- (log(df3$individualCount) + 1) / 2
+#df3 &lt;- as.data.frame(df3)
 
-ortho &lt;- paste0(&#39;+proj=ortho +lat_0=50 +lon_0=80 +x_0=0 +k_0=1000 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs&#39;)
+# df2$alpha1 &lt;- 0.10
+# 
+# df21 &lt;- df2
+# df22 &lt;- df2
+# df23 &lt;- df2
+# df24 &lt;- df2
+# 
+# df21$alpha1 &lt;- 0.10/2
+# df21$jdate &lt;- df2$jdate+1
+# df22$alpha1 &lt;- 0.10/3
+# df22$jdate &lt;- df2$jdate+2
+# df23$alpha1 &lt;- 0.10/4
+# df23$jdate &lt;- df2$jdate+3
+# df24$alpha1 &lt;- 0.10/5
+# df24$jdate &lt;- df2$jdate+4
+# 
+# df210 &lt;- rbind(df2,df21,df22,df23,df24)
+# 
+# df210$size &lt;- (log(df210$individualCount)+1)/2
+# 
+# df210 &lt;- as.data.frame(df210)</code></pre>
+<pre class="r"><code>split_pop &lt;- st_read(&quot;shp/Two_ways.shp&quot;)
 
-df2 &lt;- df2 %&gt;% st_transform(crs = ortho)
-df2 &lt;- df2 %&gt;%
-  dplyr::mutate(lon = sf::st_coordinates(.)[,1],
-                lat = sf::st_coordinates(.)[,2])</code></pre>
+split_pop &lt;- split_pop %&gt;% st_transform(crs=ortho)
+
+df3_split &lt;- df3 %&gt;% st_join(split_pop)</code></pre>
+<pre class="r"><code>df3_traj &lt;- df3_split %&gt;% dplyr::group_by(jdate, direction) %&gt;% dplyr::summarize(lat_mean = mean(lat), lon_mean = mean(lon), n=dplyr::n())
+
+df3_traj2 &lt;- df3_traj %&gt;% dplyr::filter(!is.na(direction))
+
+df3_traj2_west &lt;- df3_traj2 %&gt;% dplyr::filter(direction == &quot;west&quot;)
+df3_traj2_east &lt;- df3_traj2 %&gt;% dplyr::filter(direction == &quot;east&quot;)
+
+inorn_lines_west &lt;- data.frame(jdate = 1:365)
+inorn_lines_east &lt;- data.frame(jdate = 1:365)
+
+inorn_lines_west &lt;- inorn_lines_west %&gt;% dplyr::left_join(df3_traj2_west, by = c(&quot;jdate&quot;))
+inorn_lines_east &lt;- inorn_lines_east %&gt;% dplyr::left_join(df3_traj2_east, by = c(&quot;jdate&quot;))
+
+inorn_lines_west$lat_mean2 &lt;- inorn_lines_west$lat_mean
+inorn_lines_west$lat_mean2[5:(nrow(inorn_lines_west))] &lt;- rollapply(inorn_lines_west$lat_mean, 5, FUN=function(x) mean(x, na.rm=T), align = &quot;right&quot;)
+inorn_lines_west$lon_mean2 &lt;- inorn_lines_west$lon_mean
+inorn_lines_west$lon_mean2[5:(nrow(inorn_lines_west))] &lt;- rollapply(inorn_lines_west$lon_mean, 5, FUN=function(x) mean(x, na.rm=T), align = &quot;right&quot;)
+
+inorn_lines_east$lat_mean2 &lt;- inorn_lines_east$lat_mean
+inorn_lines_east$lat_mean2[5:(nrow(inorn_lines_east))] &lt;- rollapply(inorn_lines_east$lat_mean, 5, FUN=function(x) mean(x, na.rm=T), align = &quot;right&quot;)
+inorn_lines_east$lon_mean2 &lt;- inorn_lines_east$lon_mean
+inorn_lines_east$lon_mean2[5:(nrow(inorn_lines_east))] &lt;- rollapply(inorn_lines_east$lon_mean, 5, FUN=function(x) mean(x, na.rm=T), align = &quot;right&quot;)
+
+inorn_lines_east$n[is.na(inorn_lines_east$n)] &lt;- 0 
+inorn_lines_west$n[is.na(inorn_lines_west$n)] &lt;- 0 
+
+scale_values &lt;- function(x){(x-min(x))/(max(x)-min(x))}
+
+inorn_lines_east$n_alpha &lt;- scale_values(log(inorn_lines_east$n+1))
+inorn_lines_west$n_alpha &lt;- scale_values(log(inorn_lines_west$n+1))
+inorn_lines_west$n_alpha[1:230] &lt;- 0
+inorn_lines_west$n_alpha[300:365] &lt;- 0
+
+inorn_lines_east2 &lt;- inorn_lines_east %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;)
+inorn_lines_west2 &lt;- inorn_lines_west %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;downup&quot;)</code></pre>
+<pre class="r"><code>for(i in 1:365){
+  plot1 &lt;- ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs=ortho, xlim=c(-5500000, 5500000), ylim=c(-4500000, 3500000))+
+    geom_point(data=df3 %&gt;% dplyr::filter(jdate == i), aes(y=lat, x=lon, alpha=alpha1, size=size), color=&quot;mediumblue&quot;)+
+    geom_path(data=inorn_lines_west2[rev(shifter(hej, i))[1:50],], aes(x=lon_mean2, y=lat_mean2, 
+                                                                       alpha=pmin(seq(1,0,length.out=50),n_alpha)), #this function compares a 50-part sequence from 1 to 0, and a transformed sample size value that ranges from 1 to 0, and picks the lowest one. 
+              color=&quot;red&quot;, size=2)+
+    geom_path(data=inorn_lines_east2[rev(shifter(hej, i))[1:50],], aes(x=lon_mean2, y=lat_mean2,
+                                                                       alpha=pmin(seq(1,0,length.out=50),n_alpha)), 
+              color=&quot;green&quot;, size=2)+
+    ggtitle(paste0(&quot;Tajgasångare: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+
+    scale_alpha(limits=c(0,1))+
+    scale_size(limits=c(0.5,4.16))+
+    theme_classic()+
+    theme(legend.position=&quot;none&quot;)
+  ggsave(file=paste0(getwd(),&quot;/out/first&quot;,str_pad(i, 3, pad=&quot;0&quot;),&quot;.png&quot;), plot=plot1, width=6, height=5)
+}</code></pre>
+<pre class="r"><code>list.files(path=paste0(getwd(),&quot;/out/&quot;), pattern = &#39;*.png&#39;, full.names = TRUE) %&gt;% 
+  image_read() %&gt;% # reads each path file
+  image_join() %&gt;% # joins image
+  image_animate(fps=25, optimize=T) %&gt;% # animates, can opt for number of loops
+  image_write(&quot;gifs/inornatus_eurasia4.gif&quot;)</code></pre>
 
 
 
