@@ -220,10 +220,10 @@ for(i in 1:365){
     geom_sf() +
     coord_sf(crs=ortho, xlim=c(-5500000, 5500000), ylim=c(-4500000, 3500000))+
     geom_point(data=df3 %>% dplyr::filter(jdate == i), aes(y=lat, x=lon, alpha=alpha1, size=size), color="mediumblue")+
-    geom_path(data=inorn_lines_west2[rev(shifter(hej, i))[1:50],], aes(x=lon_mean2, y=lat_mean2, 
+    geom_path(data=inorn_lines_west2[rev(shifter(year_days, i))[1:50],], aes(x=lon_mean2, y=lat_mean2, 
                                                                        alpha=pmin(seq(1,0,length.out=50),n_alpha)), #this function compares a 50-part sequence from 1 to 0, and a transformed sample size value that ranges from 1 to 0, and picks the lowest one. 
               color="red", size=2)+
-    geom_path(data=inorn_lines_east2[rev(shifter(hej, i))[1:50],], aes(x=lon_mean2, y=lat_mean2,
+    geom_path(data=inorn_lines_east2[rev(shifter(year_days, i))[1:50],], aes(x=lon_mean2, y=lat_mean2,
                                                                        alpha=pmin(seq(1,0,length.out=50),n_alpha)), 
               color="green", size=2)+
     ggtitle(paste0("Tajgasångare: ", format(as.Date(as.character(i), "%j"),"%d %b")))+

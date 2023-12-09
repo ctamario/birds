@@ -7,5 +7,7 @@ navbar:
       href: index.html
     - text: "Tajgasångare i Eurasien"
       href: inornatus_eurasia.html
+    - text: "Blekseglare"
+      href: apus_pallidus.html
     - text: "About"
       href: about.html
