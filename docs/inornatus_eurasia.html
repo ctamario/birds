@@ -249,6 +249,12 @@ $(document).ready(function () {
   <a href="inornatus_eurasia.html">Tajgasångare i Eurasien</a>
 </li>
 <li>
+  <a href="apus_pallidus.html">Blekseglare</a>
+</li>
+<li>
+  <a href="oenanthe.html">Stenskvättor</a>
+</li>
+<li>
   <a href="about.html">About</a>
 </li>
       </ul>
@@ -436,10 +442,10 @@ inorn_lines_west2 &lt;- inorn_lines_west %&gt;% fill(c(lat_mean2,lon_mean2), .di
     geom_sf() +
     coord_sf(crs=ortho, xlim=c(-5500000, 5500000), ylim=c(-4500000, 3500000))+
     geom_point(data=df3 %&gt;% dplyr::filter(jdate == i), aes(y=lat, x=lon, alpha=alpha1, size=size), color=&quot;mediumblue&quot;)+
-    geom_path(data=inorn_lines_west2[rev(shifter(hej, i))[1:50],], aes(x=lon_mean2, y=lat_mean2, 
+    geom_path(data=inorn_lines_west2[rev(shifter(year_days, i))[1:50],], aes(x=lon_mean2, y=lat_mean2, 
                                                                        alpha=pmin(seq(1,0,length.out=50),n_alpha)), #this function compares a 50-part sequence from 1 to 0, and a transformed sample size value that ranges from 1 to 0, and picks the lowest one. 
               color=&quot;red&quot;, size=2)+
-    geom_path(data=inorn_lines_east2[rev(shifter(hej, i))[1:50],], aes(x=lon_mean2, y=lat_mean2,
+    geom_path(data=inorn_lines_east2[rev(shifter(year_days, i))[1:50],], aes(x=lon_mean2, y=lat_mean2,
                                                                        alpha=pmin(seq(1,0,length.out=50),n_alpha)), 
               color=&quot;green&quot;, size=2)+
     ggtitle(paste0(&quot;Tajgasångare: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+

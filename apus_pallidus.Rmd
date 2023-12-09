@@ -3,7 +3,7 @@ title: "Blekseglare"
 ---
 
 
-## Hela Europa, Afrika och Asien
+## Hela utbredningsområdet
 
 ```{r echo = F}
 
@@ -12,7 +12,7 @@ knitr::include_graphics("gifs/pallidus.gif")
 ```
 
 
-## Endast nordvästra Europa. 
+## Endast nordvästra Europa
 
 ```{r echo = F}
 
