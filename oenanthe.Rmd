@@ -234,3 +234,11 @@ list.files(path=paste0(getwd(),"/out/"), pattern = '*.png', full.names = TRUE) %
   image_write("gifs/oenanthedeserti3.gif")
 
 ```
+
+
+
+
+
+
+
+
