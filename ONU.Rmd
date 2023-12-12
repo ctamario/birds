@@ -13,44 +13,65 @@ p_load(ggplot2, sf, leaflet, leaflet.extras2, dplyr)
 
 ```
 
+Punkten är satt på fågelns position när den upptäcktes. Linjen visar sedan hur fågeln har sträckt eller födosökt sig åt ett håll. 
 
-```{r, echo = F}
+```{r, echo = F, out.width = '900', out.height = '600'}
 
-onu_calle <- read_sf("C:/projekt/data/gis/onu_calle.shp", crs=3847) %>% st_as_sf(onu_calle, crs=4326)
+#onu_calle <- read_sf("C:/projekt/birds/data/gis/onu_calle.shp", crs=3847) %>% st_as_sf(onu_calle, crs=4326)
 
-onu_calle <- read_sf("C:/projekt/data/gis/onu_calle_wgs84_ver2.shp")
+onu_calle <- read_sf("C:/projekt/birds/data/gis/onu_calle_wgs84_ver3.shp")
 
 onu_calle$link <- paste0("https://artportalen.se/Sighting/",onu_calle$Id,"#ChildSightings")
 
 
-onu_lines <- read_sf("C:/projekt/data/gis/onu_calle_migrating_wgs84.shp")
-onu_lines <-onu_lines %>% left_join(as.data.frame(onu_calle), by = "Id")
+onu_lines <- read_sf("C:/projekt/birds/data/gis/onu_calle_migrating_wgs84.shp")
+onu_lines <- onu_lines %>% left_join(as.data.frame(onu_calle), by = "Id")
+
+onu_poly <- read_sf("C:/projekt/birds/data/gis/lokaler.shp")
 
 # leaflet() %>%
 #   addTiles() %>%
 #   addCircleMarkers(data = onu_calle, popup=~paste(Artnamn,paste0("www.artportalen.se/Sighting/",Id),sep="\n"), radius=2) %>%
 #   addPolylines(data = onu_lines)
 #   addArrowhead(data = onu_lines, weight=2)
+#width = "100%"
 
+leaflet() %>%
+  #addTiles() %>%
+  addProviderTiles(providers$Esri.WorldImagery) %>%
+  addPolygons(data=onu_poly, label=~paste(Lokal), color="yellow", weight=1, fill=T, fillOpacity=0.2, fillColor="yellow", group = "Lokaler") %>%
+  addCircleMarkers(data = onu_calle, fill=T, fillColor="white", color="black", label=~paste(Artnamn) ,fillOpacity=1, weight=2,
+                   popup=~paste(sep="<br/>",as.character(Artnamn),
+                                as.character(Startdatum), 
+                                as.character(Aktivitet),
+                                paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5) %>%
+  addArrowhead(data = onu_lines, color="white", label=~paste(Artnamn), 
+               popup=~paste(sep="<br/>",as.character(Artnamn),
+                            as.character(Startdatum), 
+                            as.character(Aktivitet),
+                            paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
+               options=arrowheadOptions(frequency="100m"),
+               weight=3) %>%
+  addLayersControl(overlayGroups = "Lokaler", 
+                   options = layersControlOptions(collapsed = FALSE))
 
-leaflet(width = "100%") %>%
-  addTiles() %>%
-  addCircleMarkers(data = onu_calle, popup=~paste(sep="<br/>",as.character(Artnamn),
-                                                  as.character(Startdatum), 
-                                                  as.character(Aktivitet),
-                                                  paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=3) %>%
-  addArrowhead(data = onu_lines, popup=~paste(sep="<br/>",as.character(Artnamn),
-                                              as.character(Startdatum), 
-                                              as.character(Aktivitet),
-                                              paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), weight=3)
-
-
+#options=arrowheadOptions(size="5px"), #it's possible to add this for constant arrowhead sizes
 
 ```
 
 
+## Så här gör jag i stora drag:
 
+1. Exportera ur data ur AP
+1. Ta bort första två raderna ur Excel-filen och spara om till .csv.
+1. Ladda in i QGIS; välj Ost och Nord som koordinater och välj `SWEREF99 / RT90 gon V emulation` som projektion.
+1. Välj att spara om till .shape-fil med WGS84 (EPSG: 4326) och välj att "spara över" den förra shape-filen MEN välj "Append layer" för skjutsingens skull för annars förlorar du all data. 
+1. Nu ligger de nya datapunkterna i shape-filen och det går att flytta på dem. 
 
+### För att göra en linje.
+
+1. Se till att punkten är fågeln position där den hittades.
+1. Ha polyline-lagret till hands. Det enda du behöver göra är att göra en ny linje med utgångspunkt från fyndpunkten och rita hur fågeln flög. Därefter anger du samma `Id` som fyndet har i filen som exporterades från AP. 
 
 
 
