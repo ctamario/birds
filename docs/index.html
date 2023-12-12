@@ -255,6 +255,9 @@ $(document).ready(function () {
   <a href="oenanthe.html">Stenskvättor</a>
 </li>
 <li>
+  <a href="ONU.html">Mina fynd på ÖNU</a>
+</li>
+<li>
   <a href="about.html">About</a>
 </li>
       </ul>
@@ -354,8 +357,8 @@ svenska och norska datasetet, sedan II) femdubblar datasetet med
 förskjutet datum för att plotta de gradvisa nedtoningarna av varje
 observation och III) beräknar medianpositionen av observationerna och
 applicerar ett rullande medelvärde.</p>
-<pre class="r"><code>start &lt;- 240
-end &lt;- 350
+<pre class="r"><code>start &lt;- 1
+end &lt;- 365
 
 prepare_data &lt;- function(in_data1, in_data2) {
   
@@ -451,7 +454,7 @@ proreg3 &lt;- proreg2 %&gt;% fill(c(lat_mean2,lon_mean2), .direction = &quot;dow
 world &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;) #Load the background map</code></pre>
 <p>Sedan görs en plott för dag med en loop.</p>
 <pre class="r"><code>start &lt;- 280
-end &lt;- 290
+end &lt;- 280
 
 for(i in start:end){
   hodg_loop &lt;- hodg %&gt;% dplyr::filter(jdate == i)
@@ -469,7 +472,7 @@ for(i in start:end){
     geom_point(data=hodg2_loop %&gt;% dplyr::filter(jdate==i), 
                aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color=&quot;red&quot;)+
     geom_path(data=hodg3 %&gt;% dplyr::filter(jdate &gt; 230 &amp; jdate &lt;= i), 
-              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, size=2)+
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, linewidth=2)+
     scale_alpha(limits = c(0.0, 1))+
     scale_size(limits =c(1,4))+
     ggtitle(paste0(&quot;Sibirisk piplärka: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+
@@ -483,7 +486,7 @@ for(i in start:end){
     geom_point(data=inorn2_loop, 
                aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color=&quot;red&quot;)+
     geom_path(data=inorn3 %&gt;% dplyr::filter(jdate &gt; 230 &amp; jdate &lt;= i), 
-              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, size=2)+  
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, linewidth=2)+  
     scale_alpha(limits = c(0.0, 1))+
     scale_size(limits =c(1,4))+
     ggtitle(paste0(&quot;Tajgasångare: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+
@@ -494,10 +497,13 @@ for(i in start:end){
     coord_sf(xlim = c(2.201912, 32), ylim = c(54.352533, 71.5), expand = FALSE)+
     geom_point(data=proreg_loop, 
                aes(y=lat, x=lon, alpha=alpha1, size=inds_size), color=&quot;mediumblue&quot;)+
+    #geom_density2d(data = proreg_loop, aes(y=lat, x=lon))+
+    #stat_density2d(data = proreg_loop, aes(x = lon, y = lat, fill = ..level.., alpha = ..level..),
+    #              size = 0.01, bins = 16, geom = &#39;polygon&#39;)+
     geom_point(data=proreg2_loop, 
                aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color=&quot;red&quot;)+
     geom_path(data=proreg3 %&gt;% dplyr::filter(jdate &gt; 230 &amp; jdate &lt;= i), 
-              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, size=2)+  
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, linewidth=2)+  
     scale_alpha(limits = c(0.0, 1))+
     scale_size(limits =c(1,4))+
     ggtitle(paste0(&quot;Kungsfågelsångare: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+
@@ -512,6 +518,149 @@ for(i in start:end){
   image_join() %&gt;% # joins image
   image_animate(fps=12.500000, optimize=T) %&gt;% # animates, can opt for number of loops
   image_write(paste0(getwd(),&quot;/gifs/all_three.gif&quot;))</code></pre>
+<pre class="r"><code>scale_vector &lt;- function(vector, x1 = 0, x2 = 10) {
+  if (length(vector) == 0) {
+    warning(&quot;Input vector is empty. Returning an empty vector.&quot;)
+    return(vector)
+  }
+  
+  # Calculate min and max values of the input vector
+  min_val &lt;- min(vector, na.rm = TRUE)
+  max_val &lt;- max(vector, na.rm = TRUE)
+  
+  # Check if all values are the same, which would result in division by zero
+  if (min_val == max_val) {
+    warning(&quot;All values in the vector are the same. Returning a vector of x1.&quot;)
+    return(rep(x1, length(vector)))
+  }
+  
+  # Scale the vector to the desired range
+  scaled_vector &lt;- ((vector - min_val) / (max_val - min_val)) * (x2 - x1) + x1
+  scaled_vector[is.na(scaled_vector)] &lt;- 0
+  return(scaled_vector)
+}
+
+# Example usage:
+input_vector &lt;- c(3, 7, 1, 5, 9)
+scaled_result &lt;- scale_vector(input_vector, x1 = 0, x2 = 10)
+print(scaled_result)</code></pre>
+<pre><code>## [1]  2.5  7.5  0.0  5.0 10.0</code></pre>
+<pre class="r"><code>bin_vector1 &lt;- round(scale_vector(hodg2$n, x1 = 1, x2 = 10),0)
+bin_vector2 &lt;- round(scale_vector(inorn2$n, x1 = 1, x2 = 10),0)
+bin_vector3 &lt;- round(scale_vector(proreg2$n, x1 = 1, x2 = 10),0)
+
+start &lt;- 301
+end &lt;- 320
+
+for(i in start:end){
+  
+  hodg_loop &lt;- hodg %&gt;% dplyr::filter(jdate == i)
+  hodg2_loop &lt;- hodg2 %&gt;% dplyr::filter(jdate == i)
+  inorn_loop &lt;- inorn %&gt;% dplyr::filter(jdate == i)
+  inorn2_loop &lt;- inorn2 %&gt;% dplyr::filter(jdate == i)
+  proreg_loop &lt;- proreg %&gt;% dplyr::filter(jdate == i)
+  proreg2_loop &lt;- proreg2 %&gt;% dplyr::filter(jdate == i)
+  
+    p1 &lt;- ggplot(data = world) +
+    geom_sf() +
+    coord_sf(xlim = c(1, 33), ylim = c(52, 73))+
+    geom_point(data=hodg_loop, 
+               aes(y=lat, x=lon, alpha=alpha1, size=inds_size), color=&quot;mediumblue&quot;)+
+    geom_point(data=hodg2_loop %&gt;% dplyr::filter(jdate==i), 
+               aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color=&quot;red&quot;)+
+    geom_path(data=hodg3 %&gt;% dplyr::filter(jdate &gt; 230 &amp; jdate &lt;= i), 
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, linewidth=2)+
+    scale_alpha(limits = c(0.0, 1))+
+    scale_size(limits =c(1,4))+
+    #geom_density_2d(data = hodg_loop, aes(y=lat, x=lon), linejoin = &quot;round&quot;, bins = bin_vector1[i], contour_var = &quot;density&quot;)+
+    #stat_density2d(data = inorn_loop, aes(x = lon, y = lat, fill = ..level.., alpha = ..level..),
+    #              size = 0.01, bins = 16, geom = &#39;polygon&#39;)+
+    #scale_fill_gradient(low = &quot;green&quot;, high = &quot;red&quot;) +
+    #scale_alpha(range = c(0.00, 0.25), guide = FALSE) +
+    xlim(c(1, 33))+
+    ylim(c(52, 73))+
+    ggtitle(paste0(&quot;Sibirisk piplärka: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+
+    theme_classic() + 
+    theme(legend.position = &quot;none&quot;)
+  
+      if (is.na(hodg2_loop$n) == F) {
+        if(hodg2_loop$n &gt; 1){
+                p1 &lt;- p1 + geom_density_2d(data = hodg_loop, aes(y = lat, x = lon), 
+                                 linejoin = &quot;round&quot;, bins = bin_vector1[i], contour_var = &quot;density&quot;)
+        }
+    }
+    
+  p2 &lt;- ggplot(data = world) +
+    geom_sf() +
+    coord_sf(xlim = c(1, 33), ylim = c(52, 73))+
+    geom_point(data=inorn_loop, 
+               aes(y=lat, x=lon, alpha=alpha1, size=inds_size), color=&quot;mediumblue&quot;)+
+    geom_point(data=inorn2_loop, 
+               aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color=&quot;red&quot;)+
+    geom_path(data=inorn3 %&gt;% dplyr::filter(jdate &gt; 230 &amp; jdate &lt;= i), 
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, linewidth=2)+  
+    scale_alpha(limits = c(0.0, 1))+
+    scale_size(limits =c(1,4))+
+    #geom_density_2d(data = inorn_loop, aes(y=lat, x=lon), linejoin = &quot;round&quot;, bins = bin_vector2[i], contour_var = &quot;density&quot;)+
+    #stat_density2d(data = inorn_loop, aes(x = lon, y = lat, fill = ..level.., alpha = ..level..),
+    #              size = 0.01, bins = 16, geom = &#39;polygon&#39;)+
+    #scale_fill_gradient(low = &quot;green&quot;, high = &quot;red&quot;) +
+    #scale_alpha(range = c(0.00, 0.25), guide = FALSE) +
+    xlim(c(1, 33))+
+    ylim(c(52, 73))+
+    ggtitle(paste0(&quot;Tajgasångare: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+
+    theme_classic() + 
+    theme(legend.position = &quot;none&quot;)
+  
+      if (is.na(inorn2_loop$n) == F) {
+        if(inorn2_loop$n &gt; 1){
+                p2 &lt;- p2 + geom_density_2d(data = inorn_loop, aes(y = lat, x = lon), 
+                                 linejoin = &quot;round&quot;, bins = bin_vector2[i], contour_var = &quot;density&quot;)
+        }
+    }
+  
+    p3 &lt;- ggplot(data = world) +
+    geom_sf() +
+    coord_sf(xlim = c(2.201912, 32), ylim = c(54.352533, 71.5), expand = FALSE)+
+    geom_point(data=proreg_loop, 
+               aes(y=lat, x=lon, alpha=alpha1, size=inds_size), color=&quot;mediumblue&quot;)+
+    #geom_density2d(data = proreg_loop, aes(y=lat, x=lon))+
+    #stat_density2d(data = proreg_loop, aes(x = lon, y = lat, fill = ..level.., alpha = ..level..),
+    #              size = 0.01, bins = 16, geom = &#39;polygon&#39;)+
+    geom_point(data=proreg2_loop, 
+               aes(y=lat_mean2, x=lon_mean2, alpha=alpha2), size=4, color=&quot;red&quot;)+
+    geom_path(data=proreg3 %&gt;% dplyr::filter(jdate &gt; 230 &amp; jdate &lt;= i), 
+              aes(x=lon_mean2, y=lat_mean2, alpha=alpha2), color=&quot;red&quot;, linewidth=2)+  
+    scale_alpha(limits = c(0.0, 1))+
+    scale_size(limits =c(1,4))+
+    #geom_density_2d(data = proreg_loop, aes(y=lat, x=lon), linejoin = &quot;round&quot;, bins = bin_vector3[i], contour_var = &quot;density&quot;)+
+    #stat_density2d(data = inorn_loop, aes(x = lon, y = lat, fill = ..level.., alpha = ..level..),
+    #              size = 0.01, bins = 16, geom = &#39;polygon&#39;)+
+    #scale_fill_gradient(low = &quot;green&quot;, high = &quot;red&quot;) +
+    #scale_alpha(range = c(0.00, 0.25), guide = FALSE) +
+    xlim(c(1, 33))+
+    ylim(c(52, 73))+
+    ggtitle(paste0(&quot;Kungsfågelsångare: &quot;, format(as.Date(as.character(i), &quot;%j&quot;),&quot;%d %b&quot;)))+
+    theme_classic() + 
+    theme(legend.position = &quot;none&quot;)
+    
+    if (is.na(proreg2_loop$n) == F) {
+      if(as.numeric(proreg2_loop$n) &gt; 1){
+              p3 &lt;- p3 + geom_density_2d(data = proreg_loop, aes(y = lat, x = lon), 
+                                 linejoin = &quot;round&quot;, bins = bin_vector3[i], contour_var = &quot;density&quot;)
+      }
+    }
+  
+    p4 &lt;- grid.arrange(p1, p2, p3, nrow=1)
+  
+  ggsave(file=paste0(getwd(),&quot;/out/fourth&quot;,i,&quot;.png&quot;), plot=p4, width=10, height=6)
+  
+}</code></pre>
+<pre class="r"><code>list.files(path=paste0(getwd(),&quot;/out/&quot;), pattern = &#39;*.png&#39;, full.names = TRUE) %&gt;% 
+  image_read() %&gt;% # reads each path file
+  image_join() %&gt;% # joins image
+  image_animate(fps=20.000000, optimize=T) %&gt;% # animates, can opt for number of loops
+  image_write(paste0(getwd(),&quot;/gifs/densities.gif&quot;))</code></pre>
 </div>
 
 
