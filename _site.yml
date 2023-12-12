@@ -11,5 +11,7 @@ navbar:
       href: apus_pallidus.html
     - text: "Stenskvättor"
       href: oenanthe.html
+    - text: "Mina fynd på ÖNU"
+      href: ONU.html
     - text: "About"
       href: about.html

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Mina fynd på ÖNU</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.6.3/htmlwidgets.js"></script>
+<link href="site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="site_libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="site_libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="site_libs/leaflet-binding-2.2.1/leaflet.js"></script>
+<script src="site_libs/lfx-arrowhead-1.0.0/leaflet.geometryutil.js"></script>
+<script src="site_libs/lfx-arrowhead-1.0.0/leaflet-arrowheads.js"></script>
+<script src="site_libs/lfx-arrowhead-1.0.0/leaflet-arrowheads-bindings.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Visualisering av fågelobsar</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Tre sibbar i Norden</a>
+</li>
+<li>
+  <a href="inornatus_eurasia.html">Tajgasångare i Eurasien</a>
+</li>
+<li>
+  <a href="apus_pallidus.html">Blekseglare</a>
+</li>
+<li>
+  <a href="oenanthe.html">Stenskvättor</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Mina fynd på ÖNU</h1>
+
+</div>
+
+
+<div id="htmlwidget-05dec6e3263219d0de18" style="width:100%;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-05dec6e3263219d0de18">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addCircleMarkers","args":[[57.3656937722607,57.36416882021955,57.3659210715748,57.35572375090827,57.35290102820939,57.37243896348554,57.3577210158555,57.36761856385728,57.36651881435785,57.34856325266622,57.36660283318918,57.36690994166351,57.36526514377567],[17.0832667128007,17.07768020506095,17.06893390365292,17.05624230429791,17.0412536496877,17.08844770785992,17.11521593333261,17.09157342703245,17.08842146993062,17.03027498688771,17.09388221948426,17.09375308913883,17.0851432997639],3,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2},null,null,["Stäpphök<br/>2019-04-21<br/>födosökande<br/><a href='https://artportalen.se/Sighting/77220793#ChildSightings'target='_blank'>Artportalen<\/a>","Silkeshäger<br/>2019-05-23<br/>sträckande N<br/><a href='https://artportalen.se/Sighting/77969888#ChildSightings'target='_blank'>Artportalen<\/a>","Vattenpiplärka<br/>2019-10-25<br/>stationär<br/><a href='https://artportalen.se/Sighting/80589132#ChildSightings'target='_blank'>Artportalen<\/a>","Större piplärka<br/>2019-11-09<br/>förbiflygande<br/><a href='https://artportalen.se/Sighting/80821283#ChildSightings'target='_blank'>Artportalen<\/a>","Korttålärka<br/>2020-05-23<br/>rastande<br/><a href='https://artportalen.se/Sighting/85699246#ChildSightings'target='_blank'>Artportalen<\/a>","Blek tornseglare<br/>2020-11-02<br/>födosökande<br/><a href='https://artportalen.se/Sighting/88853458#ChildSightings'target='_blank'>Artportalen<\/a>","Dvärgsparv<br/>2020-11-02<br/>rastande<br/><a href='https://artportalen.se/Sighting/88860997#ChildSightings'target='_blank'>Artportalen<\/a>","Sibirisk gransångare<br/>2020-11-03<br/>födosökande<br/><a href='https://artportalen.se/Sighting/88865870#ChildSightings'target='_blank'>Artportalen<\/a>","Svarthakad buskskvätta<br/>2020-11-03<br/>rastande<br/><a href='https://artportalen.se/Sighting/88865873#ChildSightings'target='_blank'>Artportalen<\/a>","Korttålärka<br/>2022-05-06<br/>rastande<br/><a href='https://artportalen.se/Sighting/100678148#ChildSightings'target='_blank'>Artportalen<\/a>","Rostgumpsvala<br/>2022-05-14<br/>rastande<br/><a href='https://artportalen.se/Sighting/100793969#ChildSightings'target='_blank'>Artportalen<\/a>","Citronärla<br/>2022-05-14<br/>sträckande V<br/><a href='https://artportalen.se/Sighting/100793970#ChildSightings'target='_blank'>Artportalen<\/a>","Kornsparv<br/>2023-05-08<br/>rastande<br/><a href='https://artportalen.se/Sighting/108864910#ChildSightings'target='_blank'>Artportalen<\/a>"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addArrowhead","args":[[[[{"lng":[17.05624508775604,17.05591398429648,17.05577492084347,17.05569545601317,17.05565572359803,17.05592060636568,17.05676823122216,17.05740394986453],"lat":[57.35572478353676,57.35549974150091,57.35532827995518,57.35511752389435,57.3548889058227,57.3543745099271,57.35351716741502,57.35291701574199]}]],[[{"lng":[17.07766748158993,17.07843564161613,17.07907136025849,17.08031630926646,17.0814288168906,17.08349490247829,17.08534908185185,17.08648807775276,17.08725623777895,17.08781249159102,17.08866011644751,17.08990506545548,17.09027590133019],"lat":[57.36416108438845,57.36461820362531,57.36491818502958,57.36530387180277,57.36563241659699,57.3662609286476,57.36658946504434,57.36678944226428,57.36701798618879,57.36727509643969,57.36778931153607,57.36883200335681,57.36927478133005]}]],[[{"lng":[17.09387830697026,17.09297770556024,17.09173275655228,17.09099108480285,17.09035536616049,17.08948125302723,17.08858065161721,17.08754760882337,17.08595831221745,17.0845544335489,17.08307109005004],"lat":[57.36660374921688,57.36663231743405,57.36668945380168,57.36686086235956,57.36703227017227,57.36713225763386,57.36717510933401,57.36727509643969,57.36738936708397,57.3674607860559,57.3674607860559]}]],[[{"lng":[17.09372599937886,17.09313001315164,17.09221616760324,17.09162018137602,17.09128907791645,17.09130232205484,17.09148773999219,17.0919380406972,17.09244131795575,17.09252078278604,17.09229563243354,17.09191155242044,17.09116988067101,17.09067984755085,17.08983222269436,17.08928921302067],"lat":[57.36691264188509,57.36694120986176,57.36696977781617,57.36703405563227,57.36719832065069,57.36732687536948,57.36743400395772,57.36747685530541,57.3673054496143,57.36719832065069,57.36701262970607,57.36698406178504,57.36703405563227,57.36716975287423,57.36746971341761,57.36759826718545]}]],[[{"lng":[17.08842834402579,17.08842834402579,17.08837536747226,17.08837536747226,17.0881104847046,17.08789857849048,17.08763369572283,17.08731583640164,17.08678607086634,17.08630928188456,17.08556761013513,17.08466700872511,17.0829187824586,17.07995209546089,17.07799196298025,17.07640266637434,17.07581992428549,17.07650861948139,17.07751517399848,17.07883958783674,17.08026995478207,17.08132948585268,17.08207115760211,17.08313068867272,17.08408426663627],"lat":[57.3724544129276,57.3712832836595,57.37068342248099,57.37011211700075,57.36959793446125,57.36902661207588,57.36868381437383,57.36831244658196,57.36796964220669,57.36776967150855,57.36759826718546,57.36745542963783,57.36722688840491,57.36705548154595,57.36659839267367,57.36619843523903,57.36628414077065,57.36665552909415,57.36696977781617,57.36722688840491,57.36739829446307,57.36762683462824,57.36779823881788,57.36794107503083,57.36796964220669]}]]],null,null,{"stroke":true,"color":"#03F","weight":3,"opacity":0.5,"fill":false,"fillColor":"#03F","fillOpacity":0.2,"smoothFactor":1,"noClip":false,"yawn":60,"size":"15%","frequency":"allvertices","proportionalToTotal":false},["Större piplärka<br/>2019-11-09<br/>förbiflygande<br/><a href='https://artportalen.se/Sighting/80821283#ChildSightings'target='_blank'>Artportalen<\/a>","Silkeshäger<br/>2019-05-23<br/>sträckande N<br/><a href='https://artportalen.se/Sighting/77969888#ChildSightings'target='_blank'>Artportalen<\/a>","Rostgumpsvala<br/>2022-05-14<br/>rastande<br/><a href='https://artportalen.se/Sighting/100793969#ChildSightings'target='_blank'>Artportalen<\/a>","Citronärla<br/>2022-05-14<br/>sträckande V<br/><a href='https://artportalen.se/Sighting/100793970#ChildSightings'target='_blank'>Artportalen<\/a>","Blek tornseglare<br/>2020-11-02<br/>födosökande<br/><a href='https://artportalen.se/Sighting/88853458#ChildSightings'target='_blank'>Artportalen<\/a>"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,{"yawn":60,"size":"15%","frequency":"allvertices","proportionalToTotal":false}]}],"limits":{"lat":[57.34856325266622,57.3724544129276],"lng":[17.03027498688771,17.11521593333261]}},"evals":[],"jsHooks":[]}</script>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

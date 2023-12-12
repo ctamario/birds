@@ -1,0 +1,68 @@
+---
+title: "Mina fynd på ÖNU"
+---
+
+
+
+```{r, echo = F}
+
+library(pacman)
+
+p_load(ggplot2, sf, leaflet, leaflet.extras2, dplyr)
+
+
+```
+
+
+```{r, echo = F}
+
+onu_calle <- read_sf("C:/projekt/data/gis/onu_calle.shp", crs=3847) %>% st_as_sf(onu_calle, crs=4326)
+
+onu_calle <- read_sf("C:/projekt/data/gis/onu_calle_wgs84_ver2.shp")
+
+onu_calle$link <- paste0("https://artportalen.se/Sighting/",onu_calle$Id,"#ChildSightings")
+
+
+onu_lines <- read_sf("C:/projekt/data/gis/onu_calle_migrating_wgs84.shp")
+onu_lines <-onu_lines %>% left_join(as.data.frame(onu_calle), by = "Id")
+
+# leaflet() %>%
+#   addTiles() %>%
+#   addCircleMarkers(data = onu_calle, popup=~paste(Artnamn,paste0("www.artportalen.se/Sighting/",Id),sep="\n"), radius=2) %>%
+#   addPolylines(data = onu_lines)
+#   addArrowhead(data = onu_lines, weight=2)
+
+
+leaflet(width = "100%") %>%
+  addTiles() %>%
+  addCircleMarkers(data = onu_calle, popup=~paste(sep="<br/>",as.character(Artnamn),
+                                                  as.character(Startdatum), 
+                                                  as.character(Aktivitet),
+                                                  paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=3) %>%
+  addArrowhead(data = onu_lines, popup=~paste(sep="<br/>",as.character(Artnamn),
+                                              as.character(Startdatum), 
+                                              as.character(Aktivitet),
+                                              paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), weight=3)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
