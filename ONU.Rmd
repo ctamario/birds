@@ -8,14 +8,14 @@ title: "Mina fynd på ÖNU"
 
 library(pacman)
 
-p_load(ggplot2, sf, leaflet, leaflet.extras2, dplyr)
+p_load(ggplot2, sf, leaflet, leaflet.extras2, dplyr, nngeo)
 
 
 ```
 
 Punkten är satt på fågelns position när den upptäcktes. Linjen visar sedan hur fågeln har sträckt eller födosökt sig åt ett håll. 
 
-```{r, echo = F, out.width = '900', out.height = '600'}
+```{r, prepmap, echo = F, results='hide', message=FALSE}
 
 #onu_calle <- read_sf("C:/projekt/birds/data/gis/onu_calle.shp", crs=3847) %>% st_as_sf(onu_calle, crs=4326)
 
@@ -28,6 +28,16 @@ onu_lines <- read_sf("C:/projekt/birds/data/gis/onu_calle_migrating_wgs84.shp")
 onu_lines <- onu_lines %>% left_join(as.data.frame(onu_calle), by = "Id")
 
 onu_poly <- read_sf("C:/projekt/birds/data/gis/lokaler.shp")
+onu_border <- read_sf("C:/projekt/birds/data/gis/border.shp")
+
+onu_upptackar <- read_sf("C:/projekt/birds/data/gis/onu_upptackarpunkt.shp")
+
+temp <- st_connect(onu_upptackar[1,], onu_calle[which(onu_calle$Id == onu_upptackar$Id[1]),])
+for(i in seq_along(onu_upptackar$Id)){
+  temp[i] <- st_connect(onu_upptackar[i,], onu_calle[which(onu_calle$Id == onu_upptackar$Id[i]),])
+}
+
+
 
 # leaflet() %>%
 #   addTiles() %>%
@@ -36,24 +46,33 @@ onu_poly <- read_sf("C:/projekt/birds/data/gis/lokaler.shp")
 #   addArrowhead(data = onu_lines, weight=2)
 #width = "100%"
 
+```
+
+```{r runmap, echo = F, out.width = '900', out.height = '600'}
+
 leaflet() %>%
   #addTiles() %>%
   addProviderTiles(providers$Esri.WorldImagery) %>%
-  addPolygons(data=onu_poly, label=~paste(Lokal), color="yellow", weight=1, fill=T, fillOpacity=0.2, fillColor="yellow", group = "Lokaler") %>%
-  addCircleMarkers(data = onu_calle, fill=T, fillColor="white", color="black", label=~paste(Artnamn) ,fillOpacity=1, weight=2,
-                   popup=~paste(sep="<br/>",as.character(Artnamn),
+  #addPolylines(data=onu_border, color="red", weight=3, group="Önugränsen") %>%
+  addPolylines(data=temp, color="white", dashArray = "10 10", weight=3, group="Upptäckarplats") %>%
+  addCircleMarkers(data=onu_upptackar, radius=3, color="green", group="Upptäckarplats") %>%
+  #addPolygons(data=onu_poly, label=~paste(Lokal), color="yellow", weight=1, fill=T, fillOpacity=0.2, fillColor="yellow", group = "Lokaler") %>%
+  addCircleMarkers(data = onu_calle, fill=T, fillColor="white", color="black", label=~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
+                   popup=~paste(sep="<br/>",as.character(Artnamn), 
                                 as.character(Startdatum), 
                                 as.character(Aktivitet),
                                 paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5) %>%
-  addArrowhead(data = onu_lines, color="white", label=~paste(Artnamn), 
+  addArrowhead(data = onu_lines, color="white", label=~paste(Artnamn), group="Fynd",
                popup=~paste(sep="<br/>",as.character(Artnamn),
                             as.character(Startdatum), 
                             as.character(Aktivitet),
                             paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
                options=arrowheadOptions(frequency="100m"),
                weight=3) %>%
-  addLayersControl(overlayGroups = "Lokaler", 
-                   options = layersControlOptions(collapsed = FALSE))
+  #addLayersControl(overlayGroups = c("Lokaler", "Önugränsen", "Fynd", "Upptäckarplats"), 
+  #                 options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
+  addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats"), 
+                   options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
 
 #options=arrowheadOptions(size="5px"), #it's possible to add this for constant arrowhead sizes
 
@@ -65,7 +84,7 @@ leaflet() %>%
 1. Exportera ur data ur AP
 1. Ta bort första två raderna ur Excel-filen och spara om till .csv.
 1. Ladda in i QGIS; välj Ost och Nord som koordinater och välj `SWEREF99 / RT90 gon V emulation` som projektion.
-1. Välj att spara om till .shape-fil med WGS84 (EPSG: 4326) och välj att "spara över" den förra shape-filen MEN välj "Append layer" för skjutsingens skull för annars förlorar du all data. 
+1. Välj att spara om till .shape-fil med WGS84 (`EPSG: 4326`) och välj att "spara över" den förra shape-filen MEN välj "Append layer" för skjutsingens skull för annars förlorar du all data. 
 1. Nu ligger de nya datapunkterna i shape-filen och det går att flytta på dem. 
 
 ### För att göra en linje.
@@ -75,7 +94,33 @@ leaflet() %>%
 
 
 
+```{r runmap2, echo = F, out.width = '900', out.height = '600'}
 
+leaflet() %>%
+  #addTiles() %>%
+  addProviderTiles(providers$Esri.WorldImagery) %>%
+  addPolylines(data=onu_border, color="red", weight=3, group="Önugränsen") %>%
+  #addPolylines(data=temp, color="white", dashArray = "10 10", weight=3, group="Upptäckarplats") %>%
+  #addCircleMarkers(data=onu_upptackar, radius=3, color="green", group="Upptäckarplats") %>%
+  addPolygons(data=onu_poly, label=~paste(Lokal), color="yellow", weight=1, fill=T, fillOpacity=0.2, fillColor="yellow", group = "Lokaler") %>%
+  #addCircleMarkers(data = onu_calle, fill=T, fillColor="white", color="black", label=~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
+  #                 popup=~paste(sep="<br/>",as.character(Artnamn), 
+  #                              as.character(Startdatum), 
+  #                              as.character(Aktivitet),
+  #                              paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5) %>%
+  #addArrowhead(data = onu_lines, color="white", label=~paste(Artnamn), group="Fynd",
+  #             popup=~paste(sep="<br/>",as.character(Artnamn),
+  #                          as.character(Startdatum), 
+  #                          as.character(Aktivitet),
+  #                          paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
+  #             options=arrowheadOptions(frequency="100m"),
+  #             weight=3) %>%
+  addLayersControl(overlayGroups = c("Lokaler", "Önugränsen"), 
+                   options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
+
+#options=arrowheadOptions(size="5px"), #it's possible to add this for constant arrowhead sizes
+
+```
 
 
 
