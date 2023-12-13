@@ -1,5 +1,5 @@
 ---
-title: "Mina fynd på ÖNU"
+title: "Fyndkarta ÖNU"
 ---
 
 
@@ -8,10 +8,12 @@ title: "Mina fynd på ÖNU"
 
 library(pacman)
 
-p_load(ggplot2, sf, leaflet, leaflet.extras2, dplyr, nngeo)
+p_load(ggplot2, sf, leaflet, leaflet.extras2, dplyr, nngeo, tidyr, readxl)
 
 
 ```
+
+## Mina ÖNU-fynd
 
 Punkten är satt på fågelns position när den upptäcktes. Linjen visar sedan hur fågeln har sträckt eller födosökt sig åt ett håll. 
 
@@ -19,18 +21,18 @@ Punkten är satt på fågelns position när den upptäcktes. Linjen visar sedan 
 
 #onu_calle <- read_sf("C:/projekt/birds/data/gis/onu_calle.shp", crs=3847) %>% st_as_sf(onu_calle, crs=4326)
 
-onu_calle <- read_sf("C:/projekt/birds/data/gis/onu_calle_wgs84_ver3.shp")
-
+onu_calle <- read_sf(paste0(getwd(),"/data/gis/onu_calle_wgs84_ver3.shp"))
 onu_calle$link <- paste0("https://artportalen.se/Sighting/",onu_calle$Id,"#ChildSightings")
 
 
-onu_lines <- read_sf("C:/projekt/birds/data/gis/onu_calle_migrating_wgs84.shp")
+onu_lines <- read_sf(paste0(getwd(),"/data/gis/onu_calle_migrating_wgs84.shp"))
 onu_lines <- onu_lines %>% left_join(as.data.frame(onu_calle), by = "Id")
 
-onu_poly <- read_sf("C:/projekt/birds/data/gis/lokaler.shp")
-onu_border <- read_sf("C:/projekt/birds/data/gis/border.shp")
+onu_poly <- read_sf(paste0(getwd(),"/data/gis/lokaler.shp"))
+onu_border <- read_sf(paste0(getwd(),"/data/gis/border.shp"))
 
-onu_upptackar <- read_sf("C:/projekt/birds/data/gis/onu_upptackarpunkt.shp")
+onu_upptackar <- read_sf(paste0(getwd(),"/data/gis/onu_upptackarpunkt.shp"))
+onu_upptackar <- onu_upptackar %>% left_join(as.data.frame(onu_calle), by = "Id")
 
 temp <- st_connect(onu_upptackar[1,], onu_calle[which(onu_calle$Id == onu_upptackar$Id[1]),])
 for(i in seq_along(onu_upptackar$Id)){
@@ -48,28 +50,33 @@ for(i in seq_along(onu_upptackar$Id)){
 
 ```
 
-```{r runmap, echo = F, out.width = '900', out.height = '600'}
+```{r runmap, echo = F, out.width = '1000', out.height = '700'}
 
 leaflet() %>%
   #addTiles() %>%
   addProviderTiles(providers$Esri.WorldImagery) %>%
-  #addPolylines(data=onu_border, color="red", weight=3, group="Önugränsen") %>%
+  addPolylines(data=onu_border, color="red", weight=3, group="Önugränsen") %>%
   addPolylines(data=temp, color="white", dashArray = "10 10", weight=3, group="Upptäckarplats") %>%
-  addCircleMarkers(data=onu_upptackar, radius=3, color="green", group="Upptäckarplats") %>%
+  addCircleMarkers(data=onu_upptackar, radius=3, color="green", 
+                   label=~paste(as.character(Artnamn),"upptäcktes härifrån."), 
+                   group="Upptäckarplats",
+                   labelOptions = labelOptions(textsize = "12px")) %>%
   #addPolygons(data=onu_poly, label=~paste(Lokal), color="yellow", weight=1, fill=T, fillOpacity=0.2, fillColor="yellow", group = "Lokaler") %>%
   addCircleMarkers(data = onu_calle, fill=T, fillColor="white", color="black", label=~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
                    popup=~paste(sep="<br/>",as.character(Artnamn), 
                                 as.character(Startdatum), 
                                 as.character(Aktivitet),
-                                paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5) %>%
+                                paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
+                   labelOptions = labelOptions(textsize = "12px")) %>%
   addArrowhead(data = onu_lines, color="white", label=~paste(Artnamn), group="Fynd",
                popup=~paste(sep="<br/>",as.character(Artnamn),
                             as.character(Startdatum), 
                             as.character(Aktivitet),
                             paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
                options=arrowheadOptions(frequency="100m"),
-               weight=3) %>%
-  #addLayersControl(overlayGroups = c("Lokaler", "Önugränsen", "Fynd", "Upptäckarplats"), 
+               weight=3,
+               labelOptions = labelOptions(textsize = "12px")) %>%
+  #addLayersControl(overlayGroups = c("Lokaler", "Fynd", "Upptäckarplats"), 
   #                 options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
   addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats"), 
                    options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
@@ -77,7 +84,6 @@ leaflet() %>%
 #options=arrowheadOptions(size="5px"), #it's possible to add this for constant arrowhead sizes
 
 ```
-
 
 ## Så här gör jag i stora drag:
 
@@ -92,31 +98,73 @@ leaflet() %>%
 1. Se till att punkten är fågeln position där den hittades.
 1. Ha polyline-lagret till hands. Det enda du behöver göra är att göra en ny linje med utgångspunkt från fyndpunkten och rita hur fågeln flög. Därefter anger du samma `Id` som fyndet har i filen som exporterades från AP. 
 
+## ÖNU-totalen
+
+```{r, prepmap2, echo = F, results='hide', message=FALSE}
+
+#onu_calle <- read_sf("C:/projekt/birds/data/gis/onu_calle.shp", crs=3847) %>% st_as_sf(onu_calle, crs=4326)
+
+onu_totalen <- read_sf(paste0(getwd(),"/data/gis/onu_totalen.shp"))
+onu_totalen$link <- paste0("https://artportalen.se/Sighting/",onu_totalen$Id,"#ChildSightings")
 
 
-```{r runmap2, echo = F, out.width = '900', out.height = '600'}
+onu_lines <- read_sf(paste0(getwd(),"/data/gis/onu_totalen_migrating_wgs84.shp"))
+onu_lines <- onu_lines %>% left_join(as.data.frame(onu_totalen), by = "Id")
+
+onu_poly <- read_sf(paste0(getwd(),"/data/gis/lokaler.shp"))
+onu_border <- read_sf(paste0(getwd(),"/data/gis/border.shp"))
+
+onu_upptackar <- read_sf(paste0(getwd(),"/data/gis/onu_totalen_upptackarpunkt.shp"))
+onu_upptackar <- onu_upptackar %>% left_join(as.data.frame(onu_totalen), by = "Id")
+
+temp <- st_connect(onu_upptackar[1,], onu_totalen[which(onu_totalen$Id == onu_upptackar$Id[1]),])
+for(i in seq_along(onu_upptackar$Id)){
+  temp[i] <- st_connect(onu_upptackar[i,], onu_totalen[which(onu_totalen$Id == onu_upptackar$Id[i]),])
+}
+
+onu_ingenmansland <- read_sf(paste0(getwd(),"/data/gis/onu_ingenmansland.shp"))
+
+onu_totalen <- onu_totalen %>% st_join(onu_ingenmansland) %>% filter(is.na(utanfor))
+
+# leaflet() %>%
+#   addTiles() %>%
+#   addCircleMarkers(data = onu_totalen, popup=~paste(Artnamn,paste0("www.artportalen.se/Sighting/",Id),sep="\n"), radius=2) %>%
+#   addPolylines(data = onu_lines)
+#   addArrowhead(data = onu_lines, weight=2)
+#width = "100%"
+
+```
+
+```{r runmap2, echo = F, out.width = '1000', out.height = '700'}
 
 leaflet() %>%
   #addTiles() %>%
   addProviderTiles(providers$Esri.WorldImagery) %>%
   addPolylines(data=onu_border, color="red", weight=3, group="Önugränsen") %>%
-  #addPolylines(data=temp, color="white", dashArray = "10 10", weight=3, group="Upptäckarplats") %>%
-  #addCircleMarkers(data=onu_upptackar, radius=3, color="green", group="Upptäckarplats") %>%
-  addPolygons(data=onu_poly, label=~paste(Lokal), color="yellow", weight=1, fill=T, fillOpacity=0.2, fillColor="yellow", group = "Lokaler") %>%
-  #addCircleMarkers(data = onu_calle, fill=T, fillColor="white", color="black", label=~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
-  #                 popup=~paste(sep="<br/>",as.character(Artnamn), 
-  #                              as.character(Startdatum), 
-  #                              as.character(Aktivitet),
-  #                              paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5) %>%
-  #addArrowhead(data = onu_lines, color="white", label=~paste(Artnamn), group="Fynd",
-  #             popup=~paste(sep="<br/>",as.character(Artnamn),
-  #                          as.character(Startdatum), 
-  #                          as.character(Aktivitet),
-  #                          paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
-  #             options=arrowheadOptions(frequency="100m"),
-  #             weight=3) %>%
-  addLayersControl(overlayGroups = c("Lokaler", "Önugränsen"), 
+  addPolylines(data=temp, color="white", dashArray = "10 10", weight=3, group="Upptäckarplats") %>%
+  addCircleMarkers(data=onu_upptackar, radius=3, color="red", 
+                   label=~paste(as.character(Artnamn),"upptäcktes härifrån."), 
+                   group="Upptäckarplats",
+                   labelOptions = labelOptions(textsize = "12px")) %>%
+  #addPolygons(data=onu_poly, label=~paste(Lokal), color="yellow", weight=1, fill=T, fillOpacity=0.2, fillColor="yellow", group = "Lokaler") %>%
+  addCircleMarkers(data = onu_totalen, fill=T, fillColor="white", color="black", label=~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
+                   popup=~paste(sep="<br/>",as.character(Artnamn), 
+                                as.character(Startdatum), 
+                                as.character(Aktivitet),
+                                paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
+                   labelOptions = labelOptions(textsize = "12px")) %>%
+  addArrowhead(data = onu_lines, color="white", label=~paste(Artnamn), group="Fynd",
+               popup=~paste(sep="<br/>",as.character(Artnamn),
+                            as.character(Startdatum), 
+                            as.character(Aktivitet),
+                            paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
+               options=arrowheadOptions(frequency="100m"),
+               weight=3,
+               labelOptions = labelOptions(textsize = "12px")) %>%
+  addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats"), 
                    options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
+  #addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats"), 
+  #                 options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
 
 #options=arrowheadOptions(size="5px"), #it's possible to add this for constant arrowhead sizes
 
@@ -124,6 +172,20 @@ leaflet() %>%
 
 
 
+
+
+```{r eval=F}
+
+#Måste göra en funktion som tar emot Excel-filen, tar bort de observationer som redan är i systemet och spottar ut en .csv-fil.
+
+in_excel <- read_excel(paste0(getwd(),"/data/excel_exports/pusilla.xlsx"), skip=2)
+
+trimmed_excel <- in_excel[!in_excel$Id %in% onu_totalen$Id,]
+
+write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_", Sys.Date(),".csv"), trimmed_excel, 
+            sep=";", dec=",", fileEncoding="UTF-16LE", row.names=FALSE, quote = FALSE)
+
+```
 
 
 
