@@ -142,7 +142,7 @@ leaflet() %>%
   addProviderTiles(providers$Esri.WorldImagery) %>%
   addPolylines(data=onu_border, color="red", weight=3, group="Önugränsen") %>%
   addPolylines(data=temp, color="white", dashArray = "10 10", weight=3, group="Upptäckarplats") %>%
-  addCircleMarkers(data=onu_upptackar, radius=3, color="red", 
+  addCircleMarkers(data=onu_upptackar, radius=3, color="green", 
                    label=~paste(as.character(Artnamn),"upptäcktes härifrån."), 
                    group="Upptäckarplats",
                    labelOptions = labelOptions(textsize = "12px")) %>%
@@ -158,7 +158,7 @@ leaflet() %>%
                             as.character(Startdatum), 
                             as.character(Aktivitet),
                             paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
-               options=arrowheadOptions(frequency="100m"),
+               options=arrowheadOptions(frequency="200m", size="10px"),
                weight=3,
                labelOptions = labelOptions(textsize = "12px")) %>%
   addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats"), 
@@ -178,7 +178,7 @@ leaflet() %>%
 
 #Måste göra en funktion som tar emot Excel-filen, tar bort de observationer som redan är i systemet och spottar ut en .csv-fil.
 
-in_excel <- read_excel(paste0(getwd(),"/data/excel_exports/pusilla.xlsx"), skip=2)
+in_excel <- read_excel(paste0(getwd(),"/data/excel_exports/ExcelExport_1 (7).xlsx"), skip=2)
 
 trimmed_excel <- in_excel[!in_excel$Id %in% onu_totalen$Id,]
 
