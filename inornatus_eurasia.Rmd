@@ -12,7 +12,7 @@ knitr::include_graphics("gifs/inornatus_eurasia4.gif")
 
 ```
 
-```{r packages, message = F}
+```{r packages, message = F, eval=F}
 
 library(pacman)
 

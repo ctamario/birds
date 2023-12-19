@@ -31,7 +31,7 @@ p_load(tidyr, sf, sp, ggplot2, rnaturalearth, rnaturalearthdata, gganimate, magi
 
 
 Import-funktioner som konverterar data från de olika portalerna till samma koordinatsystem.
-```{r, import, warning = F} 
+```{r, import, warning = F, eval=F} 
 
 input_swedish_data <- function(in_data){
   df <- st_as_sf(in_data, coords = c("Ost", "Nord"), crs=3021) 
@@ -56,7 +56,7 @@ input_norwegian_data <- function(in_data){
 
 Ladda in och bearbeta dataseten med hjälp av "`input_*_data`"-funktionen.
 
-```{r, warning = F}
+```{r, warning = F, eval=F}
 # Norwegian data
 inornatus_NO <- read.csv(file="data/norge_tajga.csv", sep=";", dec=",")
 hodgsoni_NO <-read.csv(file="data/norge_sibpip.csv", sep=";", dec=",")
@@ -79,7 +79,7 @@ proregulus_SE_out <-input_swedish_data(proregulus_SE)
 
 Nedan är en funktion med tre delar som I) först lägger ihop det svenska och norska datasetet, sedan II) femdubblar datasetet med förskjutet datum för att plotta de gradvisa nedtoningarna av varje observation och III) beräknar medianpositionen av observationerna och applicerar ett rullande medelvärde.
 
-```{r}
+```{r, eval=F}
 start <- 1
 end <- 365
 
@@ -167,7 +167,7 @@ prepare_data <- function(in_data1, in_data2) {
 
 Skapa dataseten med hjälp av funktionen ovan.
 
-```{r}
+```{r, eval=F}
 hodg <- as.data.frame(prepare_data(hodgsoni_SE_out, hodgsoni_NO_out)[[1]])
 hodg2 <- prepare_data(hodgsoni_SE_out, hodgsoni_NO_out)[[2]]
 inorn <- as.data.frame(prepare_data(inornatus_SE_out, inornatus_NO_out)[[1]])
@@ -263,7 +263,7 @@ list.files(path=paste0(getwd(),"/out/"), pattern = '*.png', full.names = TRUE) %
 
 ```
 
-```{r}
+```{r, eval=F}
 
 
 
