@@ -293,8 +293,6 @@ world  &lt;- st_cast(world.sf, &#39;MULTILINESTRING&#39;) %&gt;%
   st_cast(&#39;LINESTRING&#39;, do_split=T) %&gt;%
   dplyr::mutate(npts = npts(geometry, by_feature = T)) %&gt;%
   st_cast(&#39;POLYGON&#39;)</code></pre>
-<pre><code>## Warning in st_cast.sf(., &quot;LINESTRING&quot;, do_split = T): repeating attributes for
-## all sub-geometries for which they may not be constant</code></pre>
 <p>Run the code below to get data from GBIF. It may take a while, so I
 have downloaded the file…</p>
 <pre class="r"><code>gbif_data &lt;- occ_data(scientificName = &quot;Phylloscopus inornatus&quot;, hasCoordinate = T,

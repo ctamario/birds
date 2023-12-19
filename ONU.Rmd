@@ -107,19 +107,19 @@ leaflet() %>%
 onu_totalen <- read_sf(paste0(getwd(),"/data/gis/onu_totalen.shp"))
 onu_totalen$link <- paste0("https://artportalen.se/Sighting/",onu_totalen$Id,"#ChildSightings")
 
-
 onu_lines <- read_sf(paste0(getwd(),"/data/gis/onu_totalen_migrating_wgs84.shp"))
 onu_lines <- onu_lines %>% left_join(as.data.frame(onu_totalen), by = "Id")
 
 onu_poly <- read_sf(paste0(getwd(),"/data/gis/lokaler.shp"))
 onu_border <- read_sf(paste0(getwd(),"/data/gis/border.shp"))
 
-onu_upptackar <- read_sf(paste0(getwd(),"/data/gis/onu_totalen_upptackarpunkt.shp"))
+onu_upptackar <- read_sf(paste0(getwd(),"/data/gis/onu_totalen_upptackarpunkt2.shp"))
 onu_upptackar <- onu_upptackar %>% left_join(as.data.frame(onu_totalen), by = "Id")
 
-temp <- st_connect(onu_upptackar[1,], onu_totalen[which(onu_totalen$Id == onu_upptackar$Id[1]),])
+
+temp <- st_connect(onu_upptackar[1,], onu_totalen[which(onu_totalen$Id == onu_upptackar$Id[1]),], progress = F)
 for(i in seq_along(onu_upptackar$Id)){
-  temp[i] <- st_connect(onu_upptackar[i,], onu_totalen[which(onu_totalen$Id == onu_upptackar$Id[i]),])
+  temp[i] <- st_connect(onu_upptackar[i,], onu_totalen[which(onu_totalen$Id == onu_upptackar$Id[i]),], progress = F)
 }
 
 onu_ingenmansland <- read_sf(paste0(getwd(),"/data/gis/onu_ingenmansland.shp"))
@@ -178,9 +178,11 @@ leaflet() %>%
 
 #Måste göra en funktion som tar emot Excel-filen, tar bort de observationer som redan är i systemet och spottar ut en .csv-fil.
 
-in_excel <- read_excel(paste0(getwd(),"/data/excel_exports/ExcelExport_1 (7).xlsx"), skip=2)
+in_excel <- read_excel(paste0(getwd(),"/data/excel_exports/ExcelExport_1 (8).xlsx"), skip=2)
 
 trimmed_excel <- in_excel[!in_excel$Id %in% onu_totalen$Id,]
+
+
 
 write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_", Sys.Date(),".csv"), trimmed_excel, 
             sep=";", dec=",", fileEncoding="UTF-16LE", row.names=FALSE, quote = FALSE)
@@ -189,6 +191,29 @@ write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_", Sys.Date(),".csv"
 
 
 
+```{r eval = F}
+
+p_load(stringr)
+
+prefix <- readLines("data/prefix.txt")
+
+prefix <- str_replace(prefix, "taiga", "tajga")
+
+prefix_df <- data.frame(Artnamn=str_sub(prefix, 1, -3), prefix=as.numeric(str_extract(prefix, "\\d+")))
+
+#### Rensa
+
+trimmed_excel_prefix <- trimmed_excel %>% left_join(prefix_df, by="Artnamn")
+
+trimmed_excel_prefix <- trimmed_excel_prefix %>% dplyr::filter(prefix <= 4)
+
+write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_all_prefix4_and_smaller", Sys.Date(),".csv"), trimmed_excel_prefix, 
+            sep=";", dec=",", fileEncoding="UTF-16LE", row.names=FALSE, quote = FALSE)
+
+
+table(trimmed_excel_prefix$prefix, useNA = "ifany")
+
+```
 
 
 

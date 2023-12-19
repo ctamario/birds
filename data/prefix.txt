@@ -1,0 +1,655 @@
+Knölsvan 6
+Svart svan 6
+Mindre sångsvan 6
+Mindre sångsvan ssp bewickii 6
+Tundrasvan 2
+Sångsvan 7
+Sädgås 7
+Sädgås ssp fabalis 7
+Tundrasädgås 6
+Spetsbergsgås 6
+Bläsgås 6
+Grönländsk bläsgås 4
+Fjällgås 5
+Grågås 7
+Snögås 5
+Dvärgsnögås 3
+Stripgås 6
+Kanadagås 7
+Dvärgkanadagås ssp minima 6
+Dvärgkanadagås 4
+Dvärgkanadagås ssp hutchinsii 4
+Vitkindad gås 6
+Prutgås 6
+Prutgås ssp bernicla 6
+Ljusbukig prutgås 6
+Svartbukig prutgås 4
+Rödhalsad gås 4
+Rostand 4
+Gravand 6
+Brudand 5
+Nilgås 4
+Bläsand 7
+Amerikansk bläsand 4
+Praktand 3
+Snatterand 6
+Gulkindad kricka 0
+Kricka 7
+Amerikansk kricka 4
+Gräsand 7
+Svartand 1
+Stjärtand 7
+Årta 6
+Blåvingad årta 2
+Skedand 7
+Mandarinand 5
+Rödhuvad dykand 4
+Brunand 6
+Svartnäbbad brunand 0
+Amerikansk brunand 0
+Ringand 3
+Vitögd dykand 3
+Vigg 7
+Bergand 7
+Mindre bergand 2
+Ejder 6
+Ejder ssp borealis 0
+Ejder ssp dresseri 0
+Ejder ssp v-nigra 0
+Praktejder 5
+Alförrädare 5
+Strömand 1
+Alfågel 7
+Sjöorre 7
+Amerikansk sjöorre 2
+Vitnackad svärta 2
+Svärta 7
+Knölsvärta 1
+Knölsvärta ssp deglandi 0
+Knölsvärta ssp stejnegeri 1
+Buffelhuvud 3
+Islandsknipa 0
+Knipa 7
+Gulnäbbad lira ssp diomedea 1
+Kamskrake 3
+Salskrake 7
+Salskrake 7
+Småskrake 7
+Storskrake 7
+Amerikansk kopparand 3
+Järpe 6
+Dalripa 6
+Fjällripa 6
+Orre 6
+Tjäder 6
+Rapphöna 6
+Vaktel 6
+Fasan 6
+Smålom 7
+Storlom 7
+Stillahavslom 0
+Svartnäbbad islom 5
+Vitnäbbad islom 5
+Tjocknäbbad dopping 0
+Smådopping 6
+Skäggdopping 6
+Gråhakedopping 7
+Svarthakedopping 7
+Svarthalsad dopping 5
+Svartbrynad albatross 1
+Mindre albatross 1
+Stormfågel 5
+Atlantpetrell 0
+Atlant-/madeirapetrell 1
+Madeirapetrell 0
+Gulnäbbad lira 3
+Gulnäbbad lira ssp borealis 0
+Större lira 2
+Grålira 5
+Mindre lira 5
+Medelhavslira 0
+Balearisk lira 2
+Makaronesisk lira 0
+Havslöpare 0
+Stormsvala 3
+Klykstjärtad stormsvala 5
+Swinhoes stormsvala 0
+Oceanlöpare 0
+Havssula 5
+Storskarv 6
+Toppskarv 5
+Dvärgskarv 1
+Vit pelikan 0
+Krushuvad pelikan 0
+Rosaryggad pelikan 5
+Praktfregattfågel 0
+Rördrom 6
+Amerikansk rördrom 1
+Dvärgrördrom 1
+Natthäger 3
+Rallhäger 2
+Kohäger 2
+Silkeshäger 4
+Ägretthäger 5
+Gråhäger 6
+Purpurhäger 2
+Svart stork 4
+Vit stork 5
+Bronsibis 3
+Skedstork 3
+Större flamingo 0
+Bivråk 7
+Svartvingad glada 1
+Brun glada 5
+Brun glada ssp lineatus 0
+Röd glada 6
+Havsörn 7
+Smutsgam 1
+Gåsgam 1
+Ormörn 3
+Brun kärrhök 6
+Brokig kärrhök 0
+Blå kärrhök 7
+Stäpphök 5
+Ängshök 6
+Duvhök 7
+Sparvhök 7
+Ormvråk 7
+Ormvråk ssp vulpinus 5
+Örnvråk 1
+Fjällvråk 7
+Mindre skrikörn 4
+Större skrikörn 3
+Stäppörn 3
+Kejsarörn 2
+Spansk kejsarörn 0
+Kungsörn 6
+Dvärgörn 1
+Hökörn 0
+Fiskgjuse 7
+Sydlig tofskarakara 5
+Rödfalk 1
+Tornfalk 7
+Aftonfalk 5
+Amurfalk 1
+Stenfalk 7
+Lärkfalk 7
+Eleonorafalk 1
+Jaktfalk 4
+Grönlandsfalk 6
+Pilgrimsfalk 6
+Vattenrall 6
+Småfläckig sumphöna 6
+Karolinasumphöna 1
+Mindre sumphöna 3
+Dvärgsumphöna 2
+Kornknarr 6
+Rörhöna 6
+Sothöna 6
+Trana 7
+Prärietrana 0
+Jungfrutrana 1
+Småtrapp 1
+Kragtrapp 1
+Stortrapp 1
+Strandskata 6
+Styltlöpare 2
+Skärfläcka 6
+Tjockfot 3
+Ökenlöpare 1
+Rödvingad vadarsvala 2
+Orientvadarsvala 1
+Svartvingad vadarsvala 3
+Mindre strandpipare 7
+Större strandpipare 7
+Flikstrandpipare 0
+Skrikstrandpipare 0
+Svartbent strandpipare 4
+Snöstrandpipare 0
+Mongolpipare 2
+Mongolpipare, atrifrons-gruppen 1
+Mongolpipare, mongolus-gruppen 1
+Ökenpipare 2
+Kaspisk pipare 0
+Fjällpipare 5
+Amerikansk tundrapipare 3
+Sibirisk tundrapipare 3
+Ljungpipare 7
+Kustpipare 6
+Stäppvipa 2
+Sumpvipa 2
+Tofsvipa 7
+Kolymasnäppa 1
+Kustsnäppa 6
+Sandlöpare 6
+Sandsnäppa 1
+Tundrasnäppa 1
+Rödhalsad snäppa 2
+Småsnäppa 6
+Mosnäppa 7
+Långtåsnäppa 1
+Dvärgsnäppa 0
+Vitgumpsnäppa 2
+Gulbröstad snäppa 2
+Tuvsnäppa 4
+Spetsstjärtad snäppa 1
+Spovsnäppa 6
+Skärsnäppa 6
+Kärrsnäppa 7
+Kärrsnäppa ssp schinzii 6
+Skedsnäppa 0
+Myrsnäppa 6
+Styltsnäppa 1
+Prärielöpare 3
+Brushane 7
+Dvärgbeckasin 6
+Enkelbeckasin 7
+Wilsonbeckasin 0
+Sibirisk beckasin 0
+Dubbelbeckasin 5
+Mindre beckasinsnäppa 1
+Större beckasinsnäppa 2
+Morkulla 7
+Rödspov 6
+Isländsk rödspov 5
+Hudsonspov 1
+Myrspov 7
+Dvärgspov 1
+Småspov 7
+Småspov ssp hudsonicus 0
+Storspov 7
+Piparsnäppa 1
+Svartsnäppa 7
+Rödbena 7
+Dammsnäppa 4
+Gluttsnäppa 7
+Större gulbena 1
+Mindre gulbena 2
+Amerikansk skogssnäppa 1
+Skogssnäppa 7
+Grönbena 7
+Tereksnäppa 3
+Drillsnäppa 7
+Fläckdrillsnäppa 1
+Sibirisk gråsnäppa 1
+Willetsnäppa 0
+Roskarl 6
+Wilsonsimsnäppa 1
+Smalnäbbad simsnäppa 6
+Brednäbbad simsnäppa 4
+Bredstjärtad labb 5
+Kustlabb 6
+Fjällabb 5
+Storlabb 5
+Sydpolslabb 0
+Svarthuvad trut 1
+Svarthuvad mås 5
+Sotvingad mås 1
+Präriemås 1
+Dvärgmås 6
+Tärnmås 4
+Trädmås 1
+Skrattmås 7
+Långnäbbad mås 1
+Rödnäbbad trut 0
+Ringnäbbad mås 2
+Fiskmås 7
+Fiskmås ssp brachyrhynchos 0
+Fiskmås ssp heinei 0
+Fiskmås ssp kamtschatschensis 0
+Silltrut 7
+Silltrut ssp graellsii 6
+Silltrut ssp heuglini 3
+Gråtrut 7
+Gråtrut ssp smithsonianus 0
+Gråvingad trut 0
+Kaspisk trut 6
+Medelhavstrut 4
+Skiffertrut 0
+Vitvingad trut 4
+Vitvingad trut ssp kumlieni 1
+Vitvingad trut ssp thayeri 0
+Vittrut 5
+Havstrut 7
+Rosenmås 2
+Tretåig mås 6
+Ismås 1
+Sandtärna 2
+Skräntärna 6
+Kentsk tärna 6
+Cabots tärna 0
+Rosentärna 1
+Fisktärna 7
+Silvertärna 7
+Kärrtärna 1
+Tygeltärna 1
+Sottärna 1
+Småtärna 6
+Svarttärna 6
+Vitvingad tärna 4
+Skäggtärna 2
+Sillgrissla 6
+Spetsbergsgrissla 2
+Tordmule 6
+Tobisgrissla 6
+Alkekung 5
+Papegojalka 1
+Lunnefågel 4
+Tofslunne 1
+Stäppflyghöna 1
+Tamduva 7
+Skogsduva 6
+Ringduva 7
+Turkduva 6
+Turturduva 5
+Större turturduva 2
+Större turturduva ssp meena 1
+Större turturduva ssp orientalis 2
+Spetsstjärtad duva 0
+Skatgök 1
+Gök 7
+Tornuggla 2
+Dvärguv 1
+Berguv 6
+Fjälluggla 3
+Hökuggla 5
+Sparvuggla 7
+Minervauggla 1
+Kattuggla 6
+Slaguggla 6
+Lappuggla 5
+Hornuggla 6
+Jorduggla 7
+Pärluggla 6
+Nattskärra 6
+Ökennattskärra 1
+Skorstensseglare 1
+Taggstjärtseglare 1
+Tornseglare 7
+Blek tornseglare 1
+Orientseglare 1
+Alpseglare 2
+Stubbstjärtseglare 1
+Kungsfiskare 5
+Grön biätare 1
+Biätare 4
+Blåkråka 2
+Härfågel 5
+Göktyta 7
+Gråspett 5
+Gröngöling 6
+Spillkråka 7
+Större hackspett 7
+Mellanspett 1
+Vitryggig hackspett 4
+Mindre hackspett 7
+Tretåig hackspett 5
+Kalanderlärka 2
+Vitvingad lärka 1
+Svartlärka 1
+Korttålärka 4
+Dvärglärka 1
+Tofslärka 4
+Trädlärka 6
+Sånglärka 7
+Berglärka 5
+Berglärka ssp penicillata 0
+Backsvala 7
+Klippsvala 1
+Ladusvala 7
+Ladusvala ssp erythrogaster 0
+Ladusvala ssp savignii/transitiva 4
+Rostgumpsvala 3
+Stensvala 1
+Hussvala 7
+Större piplärka 4
+Mongolpiplärka 2
+Fältpiplärka 5
+Sibirisk piplärka 3
+Trädpiplärka 7
+Tundrapiplärka 1
+Ängspiplärka 7
+Rödstrupig piplärka 6
+Skärpiplärka 6
+Vattenpiplärka 5
+Hedpiplärka 1
+Hedpiplärka ssp japonicus 1
+Hedpiplärka ssp rubescens 1
+Gulärla 7
+Gulärla ssp flava 6
+Gulärla ssp iberiae 0
+Gulärla ssp thunbergi 7
+Gulärla ssp tschutschensis 0
+Svarthuvad gulärla 2
+Gulhuvad gulärla 3
+Citronärla 4
+Forsärla 6
+Sädesärla 7
+Sädesärla ssp personata 1
+Engelsk sädesärla 5
+Indiansidensvans 0
+Sidensvans 7
+Strömstare 7
+Gärdsmyg 7
+Järnsparv 7
+Sibirisk järnsparv 1
+Svartstrupig järnsparv 1
+Alpjärnsparv 1
+Rödhake 7
+Drillnäktergal 0
+Näktergal 6
+Sydnäktergal 3
+Rubinnäktergal 0
+Blåhake 7
+Vitstjärning blåhake 1
+Blånäktergal 0
+Blåstjärt 3
+Vitstrupig näktergal 1
+Asiatisk kalanderlärka 2
+Svart rödstjärt 6
+Svart rödstjärt ssp phoenicuroides 1
+Svart rödstjärt ssp semirufus 0
+Rödstjärt 7
+Rödstjärt ssp samamiscus 3
+Buskskvätta 7
+Svarthakad buskskvätta 5
+Vitgumpad buskskvätta 4
+Vitgumpad buskskvätta ssp hemprichii 1
+Vitgumpad buskskvätta ssp stejnegeri 0
+Vitgumpad buskskvätta ssp variegatus 0
+Isabellastenskvätta 2
+Stenskvätta 7
+Stenskvätta ssp leucorhoa 5
+Nunnestenskvätta 3
+Medelhavsstenskvätta 2
+Ökenstenskvätta 3
+Stentrast 2
+Blåtrast 1
+Guldtrast 1
+Sibirisk trast 1
+Sibirisk trast 1
+Eremitskogstrast 1
+Beigekindad skogstrast 1
+Gråkindad skogstrast 0
+Rostskogstrast 1
+Ringtrast 6
+Ringtrast ssp alpestris 0
+Koltrast 7
+Gråhalsad trast 1
+Rödtrast 0
+Bruntrast 1
+Rödhalsad taigatrast 0
+Svarthalsad taigatrast 3
+Björktrast 7
+Taltrast 7
+Rödvingetrast 7
+Dubbeltrast 7
+Vandringstrast 1
+Cettisångare 1
+Grässångare 1
+Starrsångare 1
+Träsksångare 1
+Gräshoppsångare 6
+Flodsångare 5
+Vassångare 5
+Vattensångare 2
+Sävsångare 7
+Fältsångare 2
+Busksångare 5
+Kärrsångare 6
+Rörsångare 6
+Trastsångare 6
+Tjocknäbbad sångare 0
+Eksångare 1
+Macchiasångare 1
+Stäppsångare 2
+Saxaulsångare 1
+Härmsångare 6
+Polyglottsångare 1
+Sardinsk sångare 0
+Provencesångare 1
+Rödstrupig sångare 3
+Rödstrupig sångare ssp albistriata 2
+Rödstrupig sångare ssp cantillans 2
+Moltonisångare 0
+Sammetshätta 1
+Svarthakad sångare 0
+Ökensångare 2
+Mästersångare 0
+Höksångare 5
+Ärtsångare 7
+Ärtsångare ssp blythi 3
+Ärtsångare ssp halimodendri 3
+Ärtsångare ssp minula 0
+Törnsångare 6
+Törnsångare ssp icterops 0
+Trädgårdssångare 7
+Svarthätta 7
+Östlig kronsångare 0
+Lundsångare 5
+Östlig lundsångare 1
+Kaukasisk lundsångare 1
+Nordsångare 3
+Kungsfågelsångare 5
+Taigasångare 5
+Bergstaigasångare 3
+Videsångare 2
+Brunsångare 3
+Bergsångare 2
+Balkansångare 1
+Grönsångare 7
+Dvärgsångare 1
+Gransångare 7
+Gransångare ssp tristis 4
+Iberisk gransångare 1
+Berggransångare 0
+Lövsångare 7
+Kungsfågel 7
+Brandkronad kungsfågel 5
+Glasögonflugsnappare 1
+Grå flugsnappare 7
+Mindre flugsnappare 6
+Taigaflugsnappare 1
+Balkanflugsnappare 0
+Halsbandsflugsnappare 5
+Svartvit flugsnappare 7
+Skäggmes 6
+Stjärtmes 6
+Kontinental stjärtmes 5
+Entita 6
+Talltita 7
+Lappmes 5
+Tofsmes 7
+Svartmes 7
+Blåmes 7
+Azurmes 1
+Talgoxe 7
+Nötväcka 6
+Nötväcka ssp asiatica 3
+Nötväcka ssp caesia 0
+Trädkrypare 7
+Trädgårdsträdkrypare 3
+Pungmes 6
+Sommargylling 5
+Brun törnskata 1
+Isabellatörnskata 2
+Isabellatörnskata ssp isabellinus 2
+Isabellatörnskata ssp phoenicuroides 1
+Törnskata 6
+Svartpannad törnskata 3
+Varfågel 7
+Varfågel ssp leucopterus 0
+Varfågel ssp sibiricus 0
+Ökenvarfågel 2
+Varfågel ssp homeyeri 3
+Rödhuvad törnskata 2
+Masktörnskata 1
+Rostgumpad törnskata 1
+Nötskrika 7
+Lavskrika 6
+Skata 7
+Nötkråka 6
+Smalnäbbad nötkråka 6
+Kaja 7
+Kaja ssp soemmerringii 4
+Klippkaja 1
+Råka 6
+Kråka 7
+Kråka ssp cornix 7
+Svartkråka 5
+Korp 7
+Stare 7
+Svartstare 0
+Rosenstare 4
+Rosenstare 4
+Gråsparv 7
+Pilfink 7
+Rödögd vireo 0
+Bofink 7
+Bergfink 7
+Gulhämpling 5
+Grönfink 7
+Steglits 6
+Grönsiska 7
+Hämpling 6
+Vinterhämpling 6
+Gråsiska 7
+Gråsiska ssp rostrata 3
+Brunsiska 6
+Snösiska 5
+Snösiska ssp hornemanni 3
+Bändelkorsnäbb 5
+Mindre korsnäbb 7
+Större korsnäbb 7
+Ökentrumpetare 1
+Rosenfink 6
+Tallbit 5
+Långstjärtad rosenfink 3
+Domherre 7
+Stenknäck 6
+Rävsparv 0
+Sångsparv 1
+Vitkronad sparv 0
+Vitstrupig sparv 1
+Lappsparv 6
+Snösparv 7
+Gråhuvad sparv 1
+Tallsparv 2
+Gulsparv 7
+Häcksparv 1
+Klippsparv 1
+Ortolansparv 6
+Bergortolan 1
+Rostsparv 1
+Rödkindad sparv 1
+Praktsparv 4
+Gulbrynad sparv 1
+Videsparv 5
+Dvärgsparv 4
+Rödbrun sparv 0
+Gyllensparv 2
+Sävsparv 7
+Dvärgsävsparv 0
+Stäppsparv 0
+Svarthuvad sparv 2
+Kornsparv 4
