@@ -185,8 +185,8 @@ trimmed_excel <- in_excel[!in_excel$Id %in% onu_totalen$Id,]
 
 
 
-write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_", Sys.Date(),".csv"), trimmed_excel, 
-            sep=";", dec=",", fileEncoding="UTF-16LE", row.names=FALSE, quote = FALSE)
+#write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_", Sys.Date(),".csv"), trimmed_excel, 
+#            sep=";", dec=",", fileEncoding="UTF-16LE", row.names=FALSE, quote = FALSE)
 
 ```
 
@@ -198,9 +198,19 @@ p_load(stringr)
 
 prefix <- readLines("data/prefix.txt")
 
-prefix <- str_replace(prefix, "taiga", "tajga")
+prefix <- str_replace(prefix, "aiga", "ajga")
+prefix <- str_replace(prefix, "Blåstjärt", "Tajgablåstjärt")
+prefix <- str_replace(prefix, "Svart rödstjärt ssp phoenicuroides", "Turkestanrödstjärt")
 
 prefix_df <- data.frame(Artnamn=str_sub(prefix, 1, -3), prefix=as.numeric(str_extract(prefix, "\\d+")))
+
+add_species_to_prefix <- function(data, artnamn, prefixtal){
+  data_point <- data.frame(Artnamn = paste0(artnamn), prefix=paste0(prefixtal))
+  out_data <- rbind(data, data_point)
+  return(out_data)
+}
+
+prefix_df <- add_species_to_prefix(prefix_df, "Kaspisk buskskvätta", 1)
 
 #### Rensa
 
@@ -208,11 +218,16 @@ trimmed_excel_prefix <- trimmed_excel %>% left_join(prefix_df, by="Artnamn")
 
 trimmed_excel_prefix <- trimmed_excel_prefix %>% dplyr::filter(prefix <= 4)
 
-write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_all_prefix4_and_smaller", Sys.Date(),".csv"), trimmed_excel_prefix, 
-            sep=";", dec=",", fileEncoding="UTF-16LE", row.names=FALSE, quote = FALSE)
+#write.table(file=paste0(getwd(), "/data/csv_imports/csv_out_all_prefix4_and_smaller", Sys.Date(),".csv"), trimmed_excel_prefix, 
+#            sep=";", dec=",", fileEncoding="UTF-16LE", row.names=FALSE, quote = FALSE)
 
 
 table(trimmed_excel_prefix$prefix, useNA = "ifany")
+
+### Just testing
+hej <- onu_totalen %>% left_join(prefix_df, by = "Artnamn")
+
+
 
 ```
 
