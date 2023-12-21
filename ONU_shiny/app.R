@@ -9,7 +9,7 @@
 
 library(shiny)
 library(pacman)
-p_load(stringr, dplyr, sf, leaflet)
+p_load(stringr, dplyr, sf, leaflet, nngeo)
 
 onu_totalen <- read_sf("C:/projekt/birds/data/gis/onu_totalen.shp")
 onu_totalen$link <- paste0("https://artportalen.se/Sighting/",onu_totalen$Id,"#ChildSightings")
@@ -28,12 +28,13 @@ onu_upptackar <- onu_upptackar %>% left_join(as.data.frame(onu_totalen), by = "I
 shiny_upptackar <- onu_upptackar
 shiny_upptackar$year <- as.numeric(str_sub(shiny_upptackar$Startdatum,1,4))
 
-temp <- st_as_sf(st_connect(shiny_upptackar[1,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[1]),], progress = F))
-temp$year <- as.numeric(shiny_upptackar[1,"year"])[1]
-for(i in seq_along(shiny_upptackar$Id)){
-  temp$x[i] <- st_as_sf(st_connect(shiny_upptackar[i,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[i]),], progress = F))
-  temp$year[i] <- as.numeric(shiny_upptackar[i,"year"])[1]
-}
+# temp <- st_as_sf(st_connect(shiny_upptackar[1,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[1]),], progress = F))
+# temp$year <- as.numeric(shiny_upptackar[1,"year"])[1]
+# for(i in seq_along(shiny_upptackar$Id)){
+#   temp$x[i] <- st_as_sf(st_connect(shiny_upptackar[i,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[i]),], progress = F))
+#   temp$year[i] <- as.numeric(shiny_upptackar[i,"year"])[1]
+# }
+
 #onu_totalen %>% filter(as.numeric(str_sub(Startdatum,1,4)) == 2015)
 
   
@@ -42,8 +43,7 @@ for(i in seq_along(shiny_upptackar$Id)){
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
-    leafletOutput("mymap"),
+    titlePanel("Fynd på ÖNU"),
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
@@ -51,14 +51,14 @@ ui <- fluidPage(
                         "Choose year(s):",
                         min = 2015,
                         max = 2022,
-                        value = c(2020,2022))
+                        value = c(2020,2022)),
+            selectInput("fromPrefix", "Från prefix:", 1:4, selected=1),
+            selectInput("toPrefix", "Till prefix", 1:4, selected=4)
         ),
-
         # Show a plot of the generated distribution
-        mainPanel = mainPanel(leafletOutput(outputId="map", height="80vh")
+        mainPanel = mainPanel(leafletOutput(outputId="map", height="80vh"))
         )
     )
-)
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -73,22 +73,30 @@ server <- function(input, output) {
     
   })
   
-  temp_df = reactive({
-    temp <- st_connect(upptackar_df()[1,], map_df()[which(map_df()$Id == upptackar_df()$Id[1]),], progress = F)
-    for(i in seq_along(upptackar_df()$Id)){
-      temp[i] <- st_connect(upptackar_df()[i,], map_df()[which(map_df()$Id == upptackar_df()$Id[i]),], progress = F)
-    }
-    
-  })
+  #temp_df = reactive({
+  #  temp <- st_connect(upptackar_df()[1,], map_df()[which(map_df()$Id == upptackar_df()$Id[1]),], progress = F)
+  #  for(i in seq_along(upptackar_df()$Id)){
+  #    temp[i] <- st_connect(upptackar_df()[i,], map_df()[which(map_df()$Id == upptackar_df()$Id[i]),], progress = F)
+  #  }
+  #  
+  #})
 
     output$map <- renderLeaflet({
       
       leaflet() %>%
         addTiles() %>%
         setView(lng=17.1, lat = 57.35, zoom = 13) %>%
-        addCircleMarkers(data=map_df()) %>% 
-        addCircleMarkers(data=upptackar_df(), color="red") #%>% 
-        addPolylines(data=temp_df(), color="white", dashArray = "10 10", weight=3)
+        addCircleMarkers(data=map_df(), fill=T, fillColor="white", color="black", label=~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
+                         popup=~paste(sep="<br/>",as.character(Artnamn), 
+                                      as.character(Startdatum), 
+                                      as.character(Aktivitet),
+                                      paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
+                         labelOptions = labelOptions(textsize = "12px")) %>% 
+        addCircleMarkers(data=upptackar_df(), radius=3, color="green", 
+                         label=~paste(as.character(Artnamn),"upptäcktes härifrån."), 
+                         group="Upptäckarplats",
+                         labelOptions = labelOptions(textsize = "12px")) #%>% 
+        #addPolylines(data=temp_df(), color="white", dashArray = "10 10", weight=3)
       
     })
 }
