@@ -212,6 +212,12 @@ add_species_to_prefix <- function(data, artnamn, prefixtal){
 
 prefix_df <- add_species_to_prefix(prefix_df, "Kaspisk buskskvätta", 1)
 
+prefix_df$prefix[which(prefix_df$Artnamn == "Blek tornseglare")] <- 2
+
+prefix_df_unique <- prefix_df %>% distinct() 
+
+write.table(file=paste0(getwd(), "/data/prefix_df_out.txt"), prefix_df_unique)
+
 #### Rensa
 
 trimmed_excel_prefix <- trimmed_excel %>% left_join(prefix_df, by="Artnamn")
