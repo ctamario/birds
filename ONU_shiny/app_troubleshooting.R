@@ -9,7 +9,7 @@
 
 library(shiny)
 library(pacman)
-p_load(stringr, dplyr, sf, leaflet, nngeo, leaflet.extras2, ggplot2)
+p_load(stringr, dplyr, sf, leaflet, nngeo, leaflet.extras2, ggplot2, scales, flextable, DT)
 
 prefix_df_unique <- read.table(paste0(getwd(), "/data/prefix_df_out.txt"))
 
@@ -19,6 +19,8 @@ onu_totalen$link <- paste0("https://artportalen.se/Sighting/",onu_totalen$Id,"#C
 shiny_df <- onu_totalen
 shiny_df$year <- as.numeric(str_sub(shiny_df$Startdatum,1,4))
 shiny_df <- shiny_df %>% left_join(prefix_df_unique, by = "Artnamn")
+
+shiny_df <- shiny_df %>% filter(year < 2023)
 
 onu_lines <- read_sf("C:/projekt/birds/data/gis/onu_totalen_migrating_wgs84.shp")
 onu_lines <- onu_lines %>% left_join(as.data.frame(shiny_df), by = "Id")
@@ -35,6 +37,9 @@ shiny_upptackar <- onu_upptackar
 
 dim(shiny_lines %>% filter(year == 2015))
 
+
+hm <- head(data.frame(shiny_df %>% select(Artnamn, year) %>% filter(Artnamn == "Citronärla")))
+hm
 # temp <- st_as_sf(st_connect(shiny_upptackar[1,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[1]),], progress = F))
 # temp$year <- as.numeric(shiny_upptackar[1,"year"])[1]
 # for(i in seq_along(shiny_upptackar$Id)){
@@ -57,11 +62,13 @@ ui <- fluidPage(
             sliderInput("years",
                         "Choose year(s):",
                         min = 2015,
-                        max = 2022,
-                        value = c(2015,2022)),
+                        max = 2024,
+                        value = c(2015,2024)),
             selectInput("fromPrefix", "Lägsta prefix:", 0:4, selected=0),
             selectInput("toPrefix", "Högsta prefix", 0:4, selected=4),
-            selectInput("SPEC", "Artnamn", "Alla")
+            selectInput("SPEC", "Artnamn", "Alla"),
+            plotOutput(outputId = "fyndPlot", height = 200),
+            tableOutput(outputId = "fyndTable")
          #   plotOutput(outputId = "fyndPlot")#, width=3
         ),
         # Show a plot of the generated distribution
@@ -126,79 +133,68 @@ server <- function(input, output, session) {
       observe({
         
         validate(
-          need(input$fromPrefix <= input$toPrefix, 'Se till att ha ett lika som eller lägre "Lägsta prefix" än "Högsta prefix"'),
-          need(dim(map_df())[1] > 0, "No cases to plot")
+          need(input$fromPrefix <= input$toPrefix, 'Se till att ha ett lika som eller lägre "Lägsta prefix" än "Högsta prefix"')
+          #need(dim(map_df())[1] > 0, "No cases to plot")
         )
         
-        if(input$SPEC == "Alla"){
+        if(dim(map_df())[1] > 0){
+          if(input$SPEC == "Alla"){
+            leafletProxy("map") %>%
+              
+              clearMarkers()  %>%
+              clearShapes() %>%
+              
+              addCircleMarkers(data = map_df(), fill = T, fillColor="white", color="black", label = ~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
+                               popup = ~paste(sep="<br/>",as.character(Artnamn), 
+                                              as.character(Startdatum), 
+                                              paste("Aktivitet:",as.character(Aktivitet)),
+                                              paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
+                               labelOptions = labelOptions(textsize = "12px"))
+          } else if (input$SPEC != "Alla"){
+            leafletProxy("map") %>%
+              
+              clearMarkers()  %>%
+              clearShapes() %>%
+              
+              addCircleMarkers(data = map_df() %>% dplyr::filter(Artnamn == input$SPEC), fill = T, fillColor="white", color="black", label = ~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
+                               popup = ~paste(sep="<br/>",as.character(Artnamn), 
+                                              as.character(Startdatum), 
+                                              paste("Aktivitet:",as.character(Aktivitet)),
+                                              paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
+                               labelOptions = labelOptions(textsize = "12px"))
+          }
+        } else if (dim(map_df())[1] == 0){
           leafletProxy("map") %>%
             
             clearMarkers()  %>%
-            clearShapes() %>%
-            
-            addCircleMarkers(data=upptackar_df(), radius=3, color="green",
-                             label=~paste(as.character(Artnamn),"upptäcktes härifrån."),
-                             group="Upptäckarplats",
-                             labelOptions = labelOptions(textsize = "12px")) %>%
-            
-            addCircleMarkers(data = map_df(), fill = T, fillColor="white", color="black", label = ~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
-                             popup = ~paste(sep="<br/>",as.character(Artnamn), 
-                                            as.character(Startdatum), 
-                                            paste("Aktivitet:",as.character(Aktivitet)),
-                                            paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
-                             labelOptions = labelOptions(textsize = "12px"))
-        } else if (input$SPEC != "Alla"){
-          leafletProxy("map") %>%
-            
-            clearMarkers()  %>%
-            clearShapes() %>%
-            
-            addCircleMarkers(data=upptackar_df(), radius=3, color="green",
-                             label=~paste(as.character(Artnamn),"upptäcktes härifrån."),
-                             group="Upptäckarplats",
-                             labelOptions = labelOptions(textsize = "12px")) %>%
-            
-            addCircleMarkers(data = map_df() %>% dplyr::filter(Artnamn == input$SPEC), fill = T, fillColor="white", color="black", label = ~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
-                             popup = ~paste(sep="<br/>",as.character(Artnamn), 
-                                            as.character(Startdatum), 
-                                            paste("Aktivitet:",as.character(Aktivitet)),
-                                            paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
-                             labelOptions = labelOptions(textsize = "12px"))
+            clearShapes()
+        
+
         }
-
-
-
-
-      })
-      
-      observe({
         
-        validate(
-          need(input$fromPrefix <= input$toPrefix, 'Se till att ha ett lika som eller lägre "Lägsta prefix" än "Högsta prefix"'),
-          need(dim(lines_df())[1] > 0, "No cases to plot")
-        )
+        })
 
-        leafletProxy("map", data = map_df()) %>%
-
-        addArrowhead(data = lines_df(), color="white", label=~paste(Artnamn), group="Fynd",
-                     popup=~paste(sep="<br/>",as.character(Artnamn),
-                                  as.character(Startdatum), 
-                                  as.character(Aktivitet),
-                                  paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
-                     options=arrowheadOptions(frequency="200m", size="10px"),
-                     weight=3,
-                     labelOptions = labelOptions(textsize = "12px"))
-      })
       
-      #output$fyndPlot <- renderPlot({map_df()
-      #  map_df() %>% ggplot(aes(x=year)) + geom_histogram(breaks=2015:2022, center = 1, color = "#000000", fill = "#0099F8") + theme_classic()
-      #  })
-      
- #     observe({
-#        leafletProxy("map", data = upptackar_df()) %>%
- #         clearMarkers() %>%
+output$fyndPlot <- renderPlot({
+  if(input$SPEC == "Alla"){
+    ggplot(data=map_df(), aes(x=year)) + geom_histogram(binwidth=1) + xlim(c(2012,2025))# + scale_y_continuous(breaks = pretty_breaks()) + theme_classic()
+  } else if(input$SPEC != "Alla"){
+    ggplot(data=map_df() %>% dplyr::filter(Artnamn == input$SPEC), aes(x=year)) +
+      geom_histogram(binwidth=1)# +
+      #xlim(c(2014,2024)) + 
+      #scale_y_continuous(breaks = pretty_breaks()) + theme_classic()
+  }
 
-   #   })
+})
+  
+
+ output$fyndTable <- renderTable({
+   if(input$SPEC == "Alla"){
+     data.frame(map_df()) %>% select(Artnamn, year, link) %>% filter(Artnamn == input$SPEC)
+   } else if(input$SPEC != "Alla"){
+     data.frame(map_df()) %>% dplyr::filter(Artnamn == input$SPEC) %>% select(Artnamn, year, link)
+   }
+ })
 
 }
 
