@@ -61,6 +61,7 @@ ui <- fluidPage(
                         value = c(2015,2022)),
             selectInput("fromPrefix", "Lägsta prefix:", 0:4, selected=0),
             selectInput("toPrefix", "Högsta prefix", 0:4, selected=4),
+            selectInput("SPEC", "Artnamn", "")
          #   plotOutput(outputId = "fyndPlot")#, width=3
         ),
         # Show a plot of the generated distribution
@@ -89,6 +90,20 @@ server <- function(input, output, session) {
     
   })
   
+  observe({
+    updateSelectInput(session, "SPEC",
+                      choices = c("Alla", unique(map_df()$Artnamn))
+    )})
+  
+  # if(input$SPEC != "Alla"){
+  #   map_df = reactive({
+  #     shiny_df %>% dplyr::filter(year >= input$years[1] & year <= input$years[2]) %>%
+  #       dplyr::filter(prefix >= input$fromPrefix & prefix <= input$toPrefix) %>%
+  #       dplyr::filter(Artnamn == input$SPEC)
+  #   })
+  #   
+  # } https://stackoverflow.com/questions/21465411/r-shiny-passing-reactive-to-selectinput-choices
+
   #temp_df = reactive({
   #  temp <- st_connect(upptackar_df()[1,], map_df()[which(map_df()$Id == upptackar_df()$Id[1]),], progress = F)
   #  for(i in seq_along(upptackar_df()$Id)){
@@ -127,7 +142,7 @@ server <- function(input, output, session) {
           addCircleMarkers(fill = T, fillColor="white", color="black", label = ~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
                          popup = ~paste(sep="<br/>",as.character(Artnamn), 
                                       as.character(Startdatum), 
-                                      as.character(Aktivitet),
+                                      paste("Aktivitet:",as.character(Aktivitet)),
                                       paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
                          labelOptions = labelOptions(textsize = "12px"))
 
