@@ -13,28 +13,26 @@ p_load(stringr, dplyr, sf, leaflet, nngeo, leaflet.extras2, ggplot2, scales, fle
 
 prefix_df_unique <- read.table(paste0(getwd(), "/data/prefix_df_out.txt"))
 
-onu_totalen <- read_sf("C:/projekt/birds/data/gis/onu_totalen.shp")
+onu_totalen <- read_sf("/data/temp/onu_totalen.shp")
 onu_totalen$link <- paste0("https://artportalen.se/Sighting/",onu_totalen$Id,"#ChildSightings")
 
 shiny_df <- onu_totalen
 shiny_df$year <- as.numeric(str_sub(shiny_df$Startdatum,1,4))
 shiny_df <- shiny_df %>% left_join(prefix_df_unique, by = "Artnamn")
 
-#shiny_df <- shiny_df %>% filter(year < 2023)
 
-onu_lines <- read_sf("C:/projekt/birds/data/gis/onu_totalen_migrating_wgs84.shp")
+onu_lines <- read_sf("/data/temp/onu_totalen_migrating_wgs84.shp")
 onu_lines <- onu_lines %>% left_join(as.data.frame(shiny_df), by = "Id")
-
 
 shiny_lines <- onu_lines
 
-onu_upptackar <- read_sf("C:/projekt/birds/data/gis/onu_totalen_upptackarpunkt2.shp")
+onu_upptackar <- read_sf("/data/temp/onu_totalen_upptackarpunkt2.shp")
 onu_upptackar <- onu_upptackar %>% left_join(as.data.frame(shiny_df), by = "Id")
 
 shiny_upptackar <- onu_upptackar
 #shiny_upptackar$year <- as.numeric(str_sub(shiny_upptackar$Startdatum,1,4))
 
-dim(shiny_lines %>% filter(year == 2015))
+dim(shiny_lines %>% filter(year == 2011))
 
 
 hm <- head(data.frame(shiny_df %>% select(Artnamn, year) %>% filter(Artnamn == "Citronärla")))
@@ -155,6 +153,7 @@ server <- function(input, output, session) {
         )
         
         if(dim(map_df())[1] > 0){
+
           if(input$SPEC == "Alla"){
             leafletProxy("map") %>%
               
@@ -175,7 +174,34 @@ server <- function(input, output, session) {
               addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats"), 
                                options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
           } else if (input$SPEC != "Alla"){
-            
+            if(nrow(lines_df() %>% dplyr::filter(Artnamn == input$SPEC)) > 0){
+              leafletProxy("map") %>%
+                
+                clearMarkers()  %>%
+                clearShapes() %>%
+                addPolylines(data=founder_df() %>% dplyr::filter(Artnamn == input$SPEC), color="white", dashArray = "10 10", weight=3, group="Upptäckarplats") %>%
+                addArrowhead(data = lines_df() %>% dplyr::filter(Artnamn == input$SPEC), color="white", label=~paste(Artnamn), group="Sträckriktning",
+                             popup=~paste(sep="<br/>",as.character(Artnamn),
+                                          as.character(Startdatum), 
+                                          as.character(Aktivitet),
+                                          paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), 
+                             options=arrowheadOptions(frequency="200m", size="10px"),
+                             weight=3,
+                             labelOptions = labelOptions(textsize = "12px")) %>%
+                addCircleMarkers(data = map_df() %>% dplyr::filter(Artnamn == input$SPEC), fill = T, fillColor="white", color="black", label = ~paste(Artnamn), group="Fynd", fillOpacity=1, weight=2,
+                                 popup = ~paste(sep="<br/>",as.character(Artnamn), 
+                                                as.character(Startdatum), 
+                                                paste("Id:", as.character(Id)),
+                                                paste("Aktivitet:",as.character(Aktivitet)),
+                                                paste0("<a href='",link, "'target='_blank'>", "Artportalen</a>")), radius=5,
+                                 labelOptions = labelOptions(textsize = "12px")) %>%
+                addCircleMarkers(data=upptackar_df() %>% dplyr::filter(Artnamn == input$SPEC), radius=3, color="green", 
+                                 label=~paste(as.character(Artnamn),"upptäcktes härifrån."), 
+                                 group="Upptäckarplats",
+                                 labelOptions = labelOptions(textsize = "12px")) %>%
+                addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats", "Sträckriktning"), 
+                                 options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
+            } else if (nrow(lines_df() %>% dplyr::filter(Artnamn == input$SPEC)) == 0){
               leafletProxy("map") %>%
                 
                 clearMarkers()  %>%
@@ -202,7 +228,8 @@ server <- function(input, output, session) {
                                  labelOptions = labelOptions(textsize = "12px")) %>%
                 addLayersControl(overlayGroups = c("Fynd", "Upptäckarplats", "Sträckriktning"), 
                                  options = layersControlOptions(collapsed = FALSE, autoZIndex = TRUE))
-
+            }
+            
             
           }
           
@@ -221,16 +248,17 @@ server <- function(input, output, session) {
       if(input$SPEC == "Alla"){
         ggplot(data=map_df(), aes(x=year)) +
           geom_histogram(binwidth=1) +
-          scale_x_continuous(limits=c(2012,2024), breaks=seq(2015,2024,by=2))+
+          scale_x_continuous(limits=c(2015,2024), breaks=seq(2015,2024,by=2), oob = scales::oob_keep)+
           theme_classic() # + scale_y_continuous(breaks = pretty_breaks()) + theme_classic()
       } else if(input$SPEC != "Alla"){
         ggplot(data=map_df() %>% dplyr::filter(Artnamn == input$SPEC), aes(x=year)) +
           geom_histogram(binwidth=1) +
-          scale_x_continuous(limits=c(2012,2024), breaks=seq(2015,2024,by=2))+
+          scale_x_continuous(limits=c(2015,2024), breaks=seq(2015,2024,by=2), oob = scales::oob_keep)+
           theme_classic() #+
           #scale_y_continuous(breaks = pretty_breaks()) + theme_classic()
       }
     
+      
     })
   
 
