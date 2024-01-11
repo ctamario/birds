@@ -9,11 +9,11 @@
 
 library(shiny)
 library(pacman)
-p_load(stringr, dplyr, sf, leaflet, nngeo, leaflet.extras2, ggplot2, scales, flextable, DT)
+p_load(stringr, dplyr, sf, leaflet, nngeo, leaflet.extras2, ggplot2, scales, flextable)
 
 prefix_df_unique <- read.table(paste0(getwd(), "/data/prefix_df_out.txt"))
 
-onu_totalen <- read_sf("C:/projekt/birds/data/gis/onu_totalen.shp")
+onu_totalen <- read_sf(paste0(getwd(), "/data/onu_totalen.shp"))
 onu_totalen$link <- paste0("https://artportalen.se/Sighting/",onu_totalen$Id,"#ChildSightings")
 
 shiny_df <- onu_totalen
@@ -22,13 +22,13 @@ shiny_df <- shiny_df %>% left_join(prefix_df_unique, by = "Artnamn")
 
 shiny_df <- shiny_df %>% filter(year < 2023)
 
-onu_lines <- read_sf("C:/projekt/birds/data/gis/onu_totalen_migrating_wgs84.shp")
+onu_lines <- read_sf(paste0(getwd(), "/data/onu_totalen_migrating_wgs84.shp"))
 onu_lines <- onu_lines %>% left_join(as.data.frame(shiny_df), by = "Id")
 #onu_lines <- onu_lines %>% left_join(prefix_df_unique, by = "Artnamn")
 
 shiny_lines <- onu_lines
 
-onu_upptackar <- read_sf("C:/projekt/birds/data/gis/onu_totalen_upptackarpunkt2.shp")
+onu_upptackar <- read_sf(paste0(getwd(), "/data/onu_totalen_upptackarpunkt2.shp"))
 onu_upptackar <- onu_upptackar %>% left_join(as.data.frame(shiny_df), by = "Id")
 #onu_upptackar <- onu_upptackar %>% left_join(prefix_df_unique, by = "Artnamn")
 
@@ -38,14 +38,17 @@ shiny_upptackar <- onu_upptackar
 dim(shiny_lines %>% filter(year == 2015))
 
 
-hm <- head(data.frame(shiny_df %>% select(Artnamn, year) %>% filter(Artnamn == "Citronärla")))
-hm
-# temp <- st_as_sf(st_connect(shiny_upptackar[1,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[1]),], progress = F))
-# temp$year <- as.numeric(shiny_upptackar[1,"year"])[1]
-# for(i in seq_along(shiny_upptackar$Id)){
-#   temp$x[i] <- st_as_sf(st_connect(shiny_upptackar[i,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[i]),], progress = F))
-#   temp$year[i] <- as.numeric(shiny_upptackar[i,"year"])[1]
-# }
+#hm <- head(data.frame(shiny_df %>% select(Artnamn, year) %>% filter(Artnamn == "Citronärla")))
+#hm
+
+temp <- st_as_sf(st_connect(shiny_upptackar[1,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[1]),], progress = F))
+temp$year <- as.numeric(shiny_upptackar[1,"year"])[1]
+for(i in seq_along(shiny_upptackar$Id)){
+  temp$x[i] <- st_as_sf(st_connect(shiny_upptackar[i,], shiny_df[which(shiny_df$Id == shiny_upptackar$Id[i]),], progress = F))
+  temp$year[i] <- as.numeric(shiny_upptackar[i,"year"])[1]
+}
+
+as.data.frame(temp)
 
 #onu_totalen %>% filter(as.numeric(str_sub(Startdatum,1,4)) == 2015)
 
@@ -177,11 +180,11 @@ server <- function(input, output, session) {
       
 output$fyndPlot <- renderPlot({
   if(input$SPEC == "Alla"){
-    ggplot(data=map_df(), aes(x=year)) + geom_histogram(binwidth=1) + xlim(c(2012,2025))# + scale_y_continuous(breaks = pretty_breaks()) + theme_classic()
+    ggplot(data=map_df(), aes(x=year)) + geom_histogram(binwidth=1) + xlim(c(2014,2024))# + scale_y_continuous(breaks = pretty_breaks()) + theme_classic()
   } else if(input$SPEC != "Alla"){
     ggplot(data=map_df() %>% dplyr::filter(Artnamn == input$SPEC), aes(x=year)) +
-      geom_histogram(binwidth=1)# +
-      #xlim(c(2014,2024)) + 
+      geom_histogram(binwidth=1) +
+      xlim(c(2014,2024))# + 
       #scale_y_continuous(breaks = pretty_breaks()) + theme_classic()
   }
 
@@ -190,9 +193,9 @@ output$fyndPlot <- renderPlot({
 
  output$fyndTable <- renderTable({
    if(input$SPEC == "Alla"){
-     data.frame(map_df()) %>% select(Artnamn, year, link) %>% filter(Artnamn == input$SPEC)
+     data.frame(map_df()) %>% select(Artnamn, Startdatum, link) %>% filter(Artnamn == input$SPEC) %>% dplyr::arrange(desc(Startdatum))
    } else if(input$SPEC != "Alla"){
-     data.frame(map_df()) %>% dplyr::filter(Artnamn == input$SPEC) %>% select(Artnamn, year, link)
+     data.frame(map_df()) %>% dplyr::filter(Artnamn == input$SPEC) %>% select(Artnamn, Startdatum, link) %>% dplyr::arrange(desc(Startdatum))
    }
  })
 
