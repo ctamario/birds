@@ -1,0 +1,10 @@
+name: onu_shiny
+title:
+username: ctamario
+account: ctamario
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10890763
+bundleId: 8132901
+url: https://ctamario.shinyapps.io/onu_shiny/
+version: 1

@@ -87,7 +87,7 @@
 "86" "Fasan" "6"
 "87" "Smålom" "7"
 "88" "Storlom" "7"
-"89" "Stillahavslom" "0"
+"89" "Stillahavslom" "1"
 "90" "Svartnäbbad islom" "5"
 "91" "Vitnäbbad islom" "5"
 "92" "Tjocknäbbad dopping" "0"

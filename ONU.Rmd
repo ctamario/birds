@@ -213,6 +213,7 @@ add_species_to_prefix <- function(data, artnamn, prefixtal){
 prefix_df <- add_species_to_prefix(prefix_df, "Kaspisk buskskvätta", 1)
 
 prefix_df$prefix[which(prefix_df$Artnamn == "Blek tornseglare")] <- 2
+prefix_df$prefix[which(prefix_df$Artnamn == "Stillahavslom")] <- 1
 
 prefix_df_unique <- prefix_df %>% distinct() 
 
