@@ -13,20 +13,22 @@ p_load(stringr, dplyr, sf, leaflet, nngeo, leaflet.extras2, ggplot2, scales, fle
 
 prefix_df_unique <- read.table(paste0(getwd(), "/data/prefix_df_out.txt"))
 
-onu_totalen <- read_sf("data/temp/onu_totalen.shp")
+#onu_totalen <- read_sf("C:/projekt/birds/data/gis/onu_totalen.shp") #absolute
+onu_totalen <- read_sf("data/temp/onu_totalen.shp") #relative
 onu_totalen$link <- paste0("https://artportalen.se/Sighting/",onu_totalen$Id,"#ChildSightings")
 
 shiny_df <- onu_totalen
 shiny_df$year <- as.numeric(str_sub(shiny_df$Startdatum,1,4))
 shiny_df <- shiny_df %>% left_join(prefix_df_unique, by = "Artnamn")
 
-
-onu_lines <- read_sf("data/temp/onu_totalen_migrating_wgs84.shp")
+#onu_lines <- read_sf("C:/projekt/birds/data/gis/onu_totalen_migrating_wgs84.shp") #absolute
+onu_lines <- read_sf("data/temp/onu_totalen_migrating_wgs84.shp") #relative
 onu_lines <- onu_lines %>% left_join(as.data.frame(shiny_df), by = "Id")
 
 shiny_lines <- onu_lines
 
-onu_upptackar <- read_sf("data/temp/onu_totalen_upptackarpunkt2.shp")
+#onu_upptackar <- read_sf("C:/projekt/birds/data/gis/onu_totalen_upptackarpunkt2.shp") #absolute
+onu_upptackar <- read_sf("data/temp/onu_totalen_upptackarpunkt2.shp") #relative
 onu_upptackar <- onu_upptackar %>% left_join(as.data.frame(shiny_df), by = "Id")
 
 shiny_upptackar <- onu_upptackar
